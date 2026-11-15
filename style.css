@@ -1,0 +1,175 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #fffaf3;
+    color: #333;
+}
+
+/* Header */
+header {
+    background: #651b1b;
+    color: white;
+    text-align: center;
+    padding: 30px 15px;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #ffe0b2;
+}
+
+/* Welcome section */
+.hero {
+    text-align: center;
+    padding: 90px 20px;
+    background: linear-gradient(135deg, #ffe0b2, #fff3e0);
+}
+
+.hero h2 {
+    font-size: 34px;
+    color: #651b1b;
+    margin-bottom: 18px;
+}
+
+.hero p {
+    font-size: 18px;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 14px 30px;
+    background: #8b2525;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #4e1111;
+    transform: translateY(-3px);
+}
+
+/* Services */
+.services {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.services h2,
+#booking h2 {
+    font-size: 30px;
+    color: #651b1b;
+    margin-bottom: 25px;
+}
+
+.service-box {
+    display: inline-block;
+    vertical-align: top;
+    background: white;
+    padding: 30px 20px;
+    margin: 12px;
+    width: 260px;
+    min-height: 150px;
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.10);
+    transition: 0.3s;
+}
+
+.service-box:hover {
+    transform: translateY(-7px);
+}
+
+.service-box h3 {
+    color: #8b2525;
+    margin-bottom: 15px;
+}
+
+/* Booking */
+#booking {
+    padding: 60px 20px;
+    text-align: center;
+    background: #fff0dc;
+}
+
+form {
+    max-width: 450px;
+    margin: 25px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.10);
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+form button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    background: #8b2525;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background: #4e1111;
+}
+
+/* Footer */
+footer {
+    background: #321515;
+    color: white;
+    text-align: center;
+    padding: 22px;
+}
+
+/* Mobile design */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 25px;
+    }
+
+    .hero h2 {
+        font-size: 27px;
+    }
+
+    .service-box {
+        width: 90%;
+        max-width: 350px;
+    }
+
+    form {
+        width: 95%;
+    }
+}
