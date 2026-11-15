@@ -7,3 +7,12 @@ bookingForm.addEventListener("submit", function(event) {
 
     bookingForm.reset();
 });
+const phoneNumber = "918008127068";
+
+function bookNow() {
+    const message = "Hello Village Feast! I want to book your catering service.";
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+}
