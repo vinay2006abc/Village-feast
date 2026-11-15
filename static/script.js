@@ -1,36 +1,50 @@
-function bookOnWhatsApp() {
+// Village Feast WhatsApp Booking
 
-    // Get customer details
-    let name = document.getElementById("name").value;
-    let phone = document.getElementById("phone").value;
-    let event = document.getElementById("event").value;
-    let guests = document.getElementById("guests").value;
-    let date = document.getElementById("date").value;
-    let location = document.getElementById("location").value;
+const bookingForm = document.getElementById("bookingForm");
 
-    // Check empty fields
-    if (!name || !phone || !event || !guests || !date || !location) {
-        alert("Please fill all the details!");
+// Enter your WhatsApp contact number with country code 91.
+// Do not include +, spaces or dashes.
+const phoneNumber = "918008127068";
+
+bookingForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("customerName").value.trim();
+    const phone = document.getElementById("customerPhone").value.trim();
+    const eventType = document.getElementById("eventType").value;
+    const date = document.getElementById("eventDate").value;
+    const guests = document.getElementById("guests").value;
+    const location = document.getElementById("eventLocation").value.trim();
+    const requirements = document.getElementById("requirements").value.trim();
+
+    if (!/^[0-9]{10}$/.test(phone)) {
+        alert("Please enter a valid 10-digit mobile number.");
         return;
     }
 
-    // Catering service WhatsApp number
-    let ownerNumber = "91800127068";
+    if (phoneNumber === "91XXXXXXXXXX") {
+        alert("Please add your WhatsApp contact number in script.js first.");
+        return;
+    }
 
-    // Prepare WhatsApp message
-    let message =
-        "New Catering Booking Request\n\n" +
-        "Customer Name: " + name + "\n" +
-        "Phone Number: " + phone + "\n" +
-        "Event Type: " + event + "\n" +
-        "Number of Guests: " + guests + "\n" +
-        "Event Date: " + date + "\n" +
-        "Event Location: " + location;
+    const message =
+`Hello Village Feast!
 
-    // Open WhatsApp
-    let whatsappURL =
-        "https://wa.me/" + ownerNumber +
-        "?text=" + encodeURIComponent(message);
+I would like to book catering services.
 
-    window.open(whatsappURL, "_blank");
-}
+Customer Name: ${name}
+Mobile Number: ${phone}
+Event Type: ${eventType}
+Event Date: ${date}
+Number of Guests: ${guests}
+Event Location: ${location}
+Additional Requirements: ${requirements || "None"}
+
+Please contact me with the details. Thank you!`;
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+    console.log("Booking form submitted");
+
+    window.open(url, "_blank");
+});
