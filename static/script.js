@@ -1,7 +1,10 @@
-const bookingForm = document.getElementById("bookingForm");
+document.getElementById("bookingForm").addEventListener("submit", function(event) {
 
-bookingForm.addEventListener("submit", function(event) {
+    console.log("Booking form submitted");
+
     event.preventDefault();
+
+});
 
     alert("Thank you! Your catering booking request has been received.");
 
