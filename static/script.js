@@ -1,21 +1,36 @@
-document.getElementById("bookingForm").addEventListener("submit", function(event) {
+function bookOnWhatsApp() {
 
-    console.log("Booking form submitted");
+    // Get customer details
+    let name = document.getElementById("name").value;
+    let phone = document.getElementById("phone").value;
+    let event = document.getElementById("event").value;
+    let guests = document.getElementById("guests").value;
+    let date = document.getElementById("date").value;
+    let location = document.getElementById("location").value;
 
-    event.preventDefault();
+    // Check empty fields
+    if (!name || !phone || !event || !guests || !date || !location) {
+        alert("Please fill all the details!");
+        return;
+    }
 
-});
+    // Catering service WhatsApp number
+    let ownerNumber = "91800127068";
 
-    alert("Thank you! Your catering booking request has been received.");
+    // Prepare WhatsApp message
+    let message =
+        "New Catering Booking Request\n\n" +
+        "Customer Name: " + name + "\n" +
+        "Phone Number: " + phone + "\n" +
+        "Event Type: " + event + "\n" +
+        "Number of Guests: " + guests + "\n" +
+        "Event Date: " + date + "\n" +
+        "Event Location: " + location;
 
-    bookingForm.reset();
-});
-const phoneNumber = "918008127068";
+    // Open WhatsApp
+    let whatsappURL =
+        "https://wa.me/" + ownerNumber +
+        "?text=" + encodeURIComponent(message);
 
-function bookNow() {
-    const message = "Hello Village Feast! I want to book your catering service.";
-
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-    window.open(url, "_blank");
+    window.open(whatsappURL, "_blank");
 }
