@@ -1,7 +1,12 @@
+/* =====================================
+   1. GENERAL STYLING
+===================================== */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
 html {
@@ -9,167 +14,476 @@ html {
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: #fffaf3;
+    background-color: #fffdf7;
     color: #333;
 }
 
-/* Header */
+
+/* =====================================
+   2. HEADER SECTION
+===================================== */
+
 header {
-    background: #651b1b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 8%;
+    background-color: #123d2a;
     color: white;
-    text-align: center;
-    padding: 30px 15px;
 }
 
-header h1 {
-    font-size: 32px;
-    margin-bottom: 10px;
+.logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: #e7c46a;
 }
 
-header p {
-    color: #ffe0b2;
+nav {
+    display: flex;
+    gap: 28px;
 }
 
-/* Welcome section */
-.hero {
-    text-align: center;
-    padding: 90px 20px;
-    background: linear-gradient(135deg, #ffe0b2, #fff3e0);
-}
-
-.hero h2 {
-    font-size: 34px;
-    color: #651b1b;
-    margin-bottom: 18px;
-}
-
-.hero p {
-    font-size: 18px;
-}
-
-.btn {
-    display: inline-block;
-    margin-top: 25px;
-    padding: 14px 30px;
-    background: #8b2525;
-    color: white;
+nav a {
     text-decoration: none;
-    border-radius: 30px;
+    color: white;
+    font-size: 16px;
     transition: 0.3s;
 }
 
-.btn:hover {
-    background: #4e1111;
-    transform: translateY(-3px);
+nav a:hover {
+    color: #e7c46a;
 }
 
-/* Services */
-.services {
-    padding: 60px 20px;
+
+/* =====================================
+   3. HOME / HERO SECTION
+===================================== */
+
+.hero {
+    min-height: 550px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     text-align: center;
+
+    padding: 60px 20px;
+
+    background:
+        linear-gradient(
+            rgba(0, 0, 0, 0.65),
+            rgba(0, 0, 0, 0.65)
+        ),
+        url("https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1400");
+
+    background-size: cover;
+    background-position: center;
+
+    color: white;
 }
 
-.services h2,
-#booking h2 {
-    font-size: 30px;
-    color: #651b1b;
+.hero-content {
+    max-width: 750px;
+}
+
+.tagline {
+    color: #e7c46a;
+    font-size: 15px;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: 55px;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 18px;
+    line-height: 1.7;
     margin-bottom: 25px;
 }
 
-.service-box {
+.main-btn {
     display: inline-block;
-    vertical-align: top;
-    background: white;
-    padding: 30px 20px;
-    margin: 12px;
-    width: 260px;
-    min-height: 150px;
-    border-radius: 14px;
-    box-shadow: 0 5px 18px rgba(0,0,0,0.10);
+
+    background-color: #d6ad45;
+    color: #172d20;
+
+    padding: 14px 28px;
+
+    text-decoration: none;
+    font-weight: bold;
+
+    border-radius: 5px;
+
     transition: 0.3s;
 }
 
-.service-box:hover {
-    transform: translateY(-7px);
+.main-btn:hover {
+    background-color: white;
+    color: #123d2a;
 }
 
-.service-box h3 {
-    color: #8b2525;
+
+/* =====================================
+   4. ABOUT SECTION
+===================================== */
+
+.about {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 55px;
+
+    padding: 90px 8%;
+}
+
+.about-image {
+    flex: 1;
+}
+
+.about-image img {
+    width: 100%;
+    height: 380px;
+
+    object-fit: cover;
+
+    border-radius: 12px;
+}
+
+.about-content {
+    flex: 1;
+}
+
+.small-title {
+    color: #b58b29;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+
     margin-bottom: 15px;
 }
 
-/* Booking */
-#booking {
-    padding: 60px 20px;
+.about-content h2 {
+    color: #123d2a;
+    font-size: 36px;
+
+    margin-bottom: 20px;
+}
+
+.about-content p {
+    font-size: 16px;
+    line-height: 1.8;
+
+    margin-bottom: 18px;
+}
+
+
+/* =====================================
+   5. SERVICES SECTION
+===================================== */
+
+.services {
+    padding: 80px 8%;
+
     text-align: center;
-    background: #fff0dc;
+
+    background-color: #f3f5ed;
 }
 
-form {
-    max-width: 450px;
-    margin: 25px auto;
-    padding: 25px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 18px rgba(0,0,0,0.10);
+.services h2 {
+    color: #123d2a;
+    font-size: 36px;
+
+    margin-bottom: 45px;
 }
 
-input,
-textarea {
-    width: 100%;
-    padding: 14px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+.service-container {
+    display: flex;
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 25px;
+}
+
+.service-card {
+    background-color: white;
+
+    width: 245px;
+
+    padding: 35px 22px;
+
+    border-radius: 10px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+
+    transition: 0.3s;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+}
+
+.service-card span {
+    font-size: 42px;
+}
+
+.service-card h3 {
+    color: #123d2a;
+    font-size: 20px;
+
+    margin: 18px 0 12px;
+}
+
+.service-card p {
     font-size: 15px;
+    line-height: 1.6;
 }
 
-textarea {
-    min-height: 100px;
+
+/* =====================================
+   6. MENU SECTION
+===================================== */
+
+.menu {
+    padding: 80px 8%;
+    text-align: center;
+}
+
+.menu h2 {
+    color: #123d2a;
+    font-size: 36px;
+
+    margin-bottom: 40px;
+}
+
+.menu-container {
+    display: flex;
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 30px;
+}
+
+.menu-card {
+    width: 300px;
+
+    background-color: white;
+
+    border-radius: 12px;
+    overflow: hidden;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.1);
+
+    transition: 0.3s;
+}
+
+.menu-card:hover {
+    transform: translateY(-7px);
+}
+
+.menu-card img {
+    width: 100%;
+    height: 220px;
+
+    object-fit: cover;
+}
+
+.menu-card h3 {
+    color: #123d2a;
+
+    padding: 20px;
+
+    font-size: 20px;
+}
+
+
+/* =====================================
+   7. BOOKING SECTION
+===================================== */
+
+.booking {
+    padding: 80px 20px;
+
+    text-align: center;
+
+    background-color: #f3f5ed;
+}
+
+.booking h2 {
+    color: #123d2a;
+    font-size: 34px;
+
+    margin-bottom: 15px;
+}
+
+.booking-text {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.booking-form {
+    max-width: 550px;
+
+    margin: auto;
+
+    padding: 35px;
+
+    background-color: white;
+
+    border-radius: 12px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.booking-form input,
+.booking-form select,
+.booking-form textarea {
+
+    width: 100%;
+
+    padding: 15px;
+
+    margin-bottom: 18px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    outline: none;
+}
+
+.booking-form input:focus,
+.booking-form select:focus,
+.booking-form textarea:focus {
+    border-color: #14532d;
+}
+
+.booking-form textarea {
     resize: vertical;
 }
 
-form button {
+.booking-form button {
+
     width: 100%;
-    padding: 14px;
-    margin-top: 10px;
-    background: #8b2525;
+
+    padding: 16px;
+
+    background-color: #14532d;
+
     color: white;
+
     border: none;
-    border-radius: 8px;
+
+    border-radius: 6px;
+
     font-size: 16px;
+
+    font-weight: bold;
+
     cursor: pointer;
+
+    transition: 0.3s;
 }
 
-form button:hover {
-    background: #4e1111;
+.booking-form button:hover {
+    background-color: #d6ad45;
+    color: #222;
 }
 
-/* Footer */
+
+/* =====================================
+   8. FOOTER SECTION
+===================================== */
+
 footer {
-    background: #321515;
+    background-color: #123d2a;
+
     color: white;
+
     text-align: center;
-    padding: 22px;
+
+    padding: 35px 20px;
 }
 
-/* Mobile design */
-@media (max-width: 600px) {
-    header h1 {
-        font-size: 25px;
+footer h2 {
+    color: #e7c46a;
+
+    margin-bottom: 15px;
+}
+
+footer p {
+    font-size: 14px;
+
+    margin-top: 10px;
+}
+
+
+/* =====================================
+   9. MOBILE RESPONSIVE DESIGN
+===================================== */
+
+@media screen and (max-width: 768px) {
+
+    header {
+        flex-direction: column;
+        gap: 20px;
     }
 
-    .hero h2 {
+    nav {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .hero {
+        min-height: 450px;
+    }
+
+    .hero h1 {
+        font-size: 38px;
+    }
+
+    .about {
+        flex-direction: column;
+        padding: 55px 7%;
+    }
+
+    .about-image img {
+        height: 280px;
+    }
+
+    .about-content h2 {
+        font-size: 29px;
+    }
+
+    .services,
+    .menu {
+        padding: 55px 6%;
+    }
+
+    .service-card {
+        width: 100%;
+    }
+
+    .menu-card {
+        width: 100%;
+    }
+
+    .booking h2 {
         font-size: 27px;
     }
 
-    .service-box {
-        width: 90%;
-        max-width: 350px;
+    .booking-form {
+        padding: 22px;
     }
 
-    form {
-        width: 95%;
-    }
 }
