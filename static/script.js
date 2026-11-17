@@ -2,13 +2,13 @@
 
 const bookingForm = document.getElementById("bookingForm");
 
-// Enter your WhatsApp contact number with country code 91.
-// Do not include +, spaces or dashes.
+// Village Feast WhatsApp contact number
 const phoneNumber = "918008127068";
 
 bookingForm.addEventListener("submit", function(event) {
     event.preventDefault();
 
+    // Get customer details
     const name = document.getElementById("customerName").value.trim();
     const phone = document.getElementById("customerPhone").value.trim();
     const eventType = document.getElementById("eventType").value;
@@ -17,16 +17,13 @@ bookingForm.addEventListener("submit", function(event) {
     const location = document.getElementById("eventLocation").value.trim();
     const requirements = document.getElementById("requirements").value.trim();
 
+    // Validate customer mobile number
     if (!/^[0-9]{10}$/.test(phone)) {
         alert("Please enter a valid 10-digit mobile number.");
         return;
     }
 
-    if (phoneNumber === "918008127068") {
-        alert("Please add your WhatsApp contact number in script.js first.");
-        return;
-    }
-
+    // Booking message
     const message =
 `Hello Village Feast!
 
@@ -42,9 +39,9 @@ Additional Requirements: ${requirements || "None"}
 
 Please contact me with the details. Thank you!`;
 
+    // Create WhatsApp URL
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-    console.log("Booking form submitted");
-
-    window.open(url, "_blank");
+    // Open WhatsApp
+    window.location.href = url;
 });
