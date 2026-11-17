@@ -88,8 +88,13 @@ def create_order():
             "message": "Booking saved successfully!"
         }), 201
 
-    except Exception:
-        app.logger.exception("Booking save failed")
+    except Exception as e:
+    app.logger.exception("Booking save failed: %s", str(e))
+
+    return jsonify({
+        "success": False,
+        "message": str(e)
+    }), 500
 
         return jsonify({
             "success": False,
