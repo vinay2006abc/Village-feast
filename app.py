@@ -1,11 +1,16 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
 import os
 import sqlite3
+from supabase import create_client
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_SECRET_KEY")
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 DB_PATH = os.environ.get(
     "DB_PATH",
@@ -62,6 +67,38 @@ def save_order():
     if not str(data["phone"]).isdigit() or len(data["phone"]) != 10:
         return jsonify({"error": "Invalid phone number"}), 400
 
+    order = {
+        "name": data["name"],
+        "phone": data["phone"],
+        "event_type": data["eventType"],
+        "event_date": data["date"],
+        "guests": data["guests"],
+        "location": data["location"],
+        "requirements": data.get("requirements", ""),
+        "status": "Pending"
+    }
+
+    try:
+        supabase.table("orders").insert(order).execute()
+        return jsonify({"message": "Order saved successfully"}), 201
+
+    except Exception:
+        app.logger.exception("Failed to save order")
+        return jsonify({"error": "Could not save order"}), 500
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({"error": "Invalid order"}), 400
+
+    required = ["name", "phone", "eventType", "date",
+                "guests", "location"]
+
+    if any(not str(data.get(key, "")).strip() for key in required):
+        return jsonify({"error": "Please complete all required fields"}), 400
+
+    if not str(data["phone"]).isdigit() or len(data["phone"]) != 10:
+        return jsonify({"error": "Invalid phone number"}), 400
+
     with get_db() as conn:
         conn.execute("""
             INSERT INTO orders
@@ -97,6 +134,28 @@ def login():
 
 @app.route("/admin")
 def admin():
+    if not session.get("admin"):
+        return redirect("/login")
+
+    try:
+        result = (
+            supabase.table("orders")
+            .select("*")
+            .order("id", desc=True)
+            .execute()
+        )
+
+        orders = result.data or []
+
+        return render_template(
+            "admin.html",
+            orders=orders,
+            total_orders=len(orders)
+        )
+
+    except Exception:
+        app.logger.exception("Failed to load orders")
+        return "Unable to load orders. Please try again.", 500
     if not session.get("admin"):
         return redirect("/login")
 
