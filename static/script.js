@@ -1,30 +1,50 @@
-document.getElementById("bookingForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+// Village Feast WhatsApp Booking
 
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
+const bookingForm = document.getElementById("bookingForm");
+
+// Enter your WhatsApp contact number with country code 91.
+// Do not include +, spaces or dashes.
+const phoneNumber = "918008127068";
+
+bookingForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("customerName").value.trim();
+    const phone = document.getElementById("customerPhone").value.trim();
     const eventType = document.getElementById("eventType").value;
-    const date = document.getElementById("date").value;
+    const date = document.getElementById("eventDate").value;
     const guests = document.getElementById("guests").value;
-    const location = document.getElementById("location").value;
-    const requirements = document.getElementById("requirements").value;
+    const location = document.getElementById("eventLocation").value.trim();
+    const requirements = document.getElementById("requirements").value.trim();
 
-    // Replace with your WhatsApp number
-    const whatsappNumber = "918008127068";
+    if (!/^[0-9]{10}$/.test(phone)) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+    }
 
-    const message = `
-*VILLAGE FEAST BOOKING*
+    if (phoneNumber === "918008127068") {
+        alert("Please add your WhatsApp contact number in script.js first.");
+        return;
+    }
 
-Name: ${name}
-Phone: ${phone}
-Event: ${eventType}
-Date: ${date}
-Guests: ${guests}
-Location: ${location}
-Requirements: ${requirements || "None"}
-`;
+    const message =
+`Hello Village Feast!
 
-    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+I would like to book catering services.
+
+Customer Name: ${name}
+Mobile Number: ${phone}
+Event Type: ${eventType}
+Event Date: ${date}
+Number of Guests: ${guests}
+Event Location: ${location}
+Additional Requirements: ${requirements || "None"}
+
+Please contact me with the details. Thank you!`;
+
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+    console.log("Booking form submitted");
 
     window.open(url, "_blank");
 });
