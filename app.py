@@ -4,29 +4,29 @@ import os
 
 app = Flask(__name__)
 
-# Flask security
-app.secret_key = os.environ.get("SECRET_KEY", "change-this-secret-key")
+# Security settings
+app.secret_key = os.environ.get("SECRET_KEY")
 
 # Admin password
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 
-# Supabase connection
+# Supabase settings
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = (
     os.environ.get("SUPABASE_SECRET_KEY")
     or os.environ.get("SUPABASE_KEY")
 )
 
+# Connect to Supabase
 supabase = None
 
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
-# Check Supabase connection
 def get_supabase():
     if supabase is None:
-        raise RuntimeError("Supabase environment variables are missing.")
+        raise RuntimeError("Supabase configuration is missing.")
     return supabase
 
 
@@ -50,9 +50,14 @@ def create_order():
         location = str(data.get("location", "")).strip()
         requirements = str(data.get("requirements", "")).strip()
 
+        # Validate required fields
         if not all([
-            name, phone, event_type,
-            event_date, guests, location
+            name,
+            phone,
+            event_type,
+            event_date,
+            guests,
+            location
         ]):
             return jsonify({
                 "success": False,
@@ -65,6 +70,7 @@ def create_order():
                 "message": "Invalid mobile number."
             }), 400
 
+        # Prepare database record
         order_data = {
             "name": name,
             "phone": phone,
@@ -76,6 +82,7 @@ def create_order():
             "status": "P"
         }
 
+        # Save booking to Supabase
         result = (
             get_supabase()
             .table("orders")
@@ -89,12 +96,9 @@ def create_order():
         }), 201
 
     except Exception as e:
-    app.logger.exception("Booking save failed: %s", str(e))
-
-    return jsonify({
-        "success": False,
-        "message": str(e)
-    }), 500
+        app.logger.exception(
+            "Booking save failed: %s", str(e)
+        )
 
         return jsonify({
             "success": False,
@@ -102,7 +106,7 @@ def create_order():
         }), 500
 
 
-# Admin login page
+# Admin login
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -148,7 +152,7 @@ def admin():
 
     except Exception:
         app.logger.exception("Failed to load orders")
-        return "Unable to load orders. Please try again.", 500
+        return "Unable to load orders.", 500
 
 
 # Update booking status
@@ -156,14 +160,20 @@ def admin():
 def update_order_status(order_id):
 
     if not session.get("admin"):
-        return jsonify({"success": False}), 401
+        return jsonify({
+            "success": False,
+            "message": "Unauthorized"
+        }), 401
 
     try:
         data = request.get_json(silent=True) or {}
         status = data.get("status")
 
         allowed_statuses = [
-            "P", "Confirmed", "Completed", "Cancelled"
+            "P",
+            "Confirmed",
+            "Completed",
+            "Cancelled"
         ]
 
         if status not in allowed_statuses:
@@ -176,11 +186,18 @@ def update_order_status(order_id):
             "status": status
         }).eq("id", order_id).execute()
 
-        return jsonify({"success": True})
+        return jsonify({
+            "success": True,
+            "message": "Status updated."
+        })
 
     except Exception:
         app.logger.exception("Status update failed")
-        return jsonify({"success": False}), 500
+
+        return jsonify({
+            "success": False,
+            "message": "Status update failed."
+        }), 500
 
 
 # Admin logout
@@ -190,7 +207,7 @@ def logout():
     return redirect("/login")
 
 
-# Run Flask
+# Start Flask
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
