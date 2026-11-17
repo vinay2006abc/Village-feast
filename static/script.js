@@ -1,12 +1,10 @@
-// Village Feast WhatsApp Booking
+// Village Feast WhatsApp + Database Booking
 
 const bookingForm = document.getElementById("bookingForm");
 
-// Enter your WhatsApp contact number with country code 91.
-// Do not include +, spaces or dashes.
 const phoneNumber = "918008127068";
 
-bookingForm.addEventListener("submit", function(event) {
+bookingForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
     const name = document.getElementById("customerName").value.trim();
@@ -19,11 +17,6 @@ bookingForm.addEventListener("submit", function(event) {
 
     if (!/^[0-9]{10}$/.test(phone)) {
         alert("Please enter a valid 10-digit mobile number.");
-        return;
-    }
-
-    if (phoneNumber === "91XXXXXXXXXX") {
-        alert("Please add your WhatsApp contact number in script.js first.");
         return;
     }
 
@@ -44,7 +37,44 @@ Please contact me with the details. Thank you!`;
 
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-    console.log("Booking form submitted");
+    // Open a temporary tab to avoid popup blocking
+    const whatsappWindow = window.open("about:blank", "_blank");
 
-    window.open(url, "_blank");
+    try {
+        const response = await fetch("/api/orders", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name,
+                phone,
+                eventType,
+                date,
+                guests,
+                location,
+                requirements
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Order could not be saved");
+        }
+
+        alert("Order saved successfully!");
+
+        if (whatsappWindow) {
+            whatsappWindow.location.href = url;
+        } else {
+            window.location.href = url;
+        }
+
+    } catch (error) {
+        if (whatsappWindow) {
+            whatsappWindow.close();
+        }
+
+        alert("Order could not be saved. Please try again.");
+        console.error(error);
+    }
 });
