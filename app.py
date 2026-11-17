@@ -72,7 +72,7 @@ def create_order():
 
         # Prepare database record
         order_data = {
-            "name": name,
+            "customer_name": name,
             "phone": phone,
             "event_type": event_type,
             "event_date": event_date,
