@@ -1,80 +1,30 @@
-// Village Feast WhatsApp + Database Booking
+document.getElementById("bookingForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-const bookingForm = document.getElementById("bookingForm");
-
-const phoneNumber = "918008127068";
-
-bookingForm.addEventListener("submit", async function(event) {
-    event.preventDefault();
-
-    const name = document.getElementById("customerName").value.trim();
-    const phone = document.getElementById("customerPhone").value.trim();
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
     const eventType = document.getElementById("eventType").value;
-    const date = document.getElementById("eventDate").value;
+    const date = document.getElementById("date").value;
     const guests = document.getElementById("guests").value;
-    const location = document.getElementById("eventLocation").value.trim();
-    const requirements = document.getElementById("requirements").value.trim();
+    const location = document.getElementById("location").value;
+    const requirements = document.getElementById("requirements").value;
 
-    if (!/^[0-9]{10}$/.test(phone)) {
-        alert("Please enter a valid 10-digit mobile number.");
-        return;
-    }
+    // Replace with your WhatsApp number
+    const whatsappNumber = "918008127068";
 
-    const message =
-`Hello Village Feast!
+    const message = `
+*VILLAGE FEAST BOOKING*
 
-I would like to book catering services.
+Name: ${name}
+Phone: ${phone}
+Event: ${eventType}
+Date: ${date}
+Guests: ${guests}
+Location: ${location}
+Requirements: ${requirements || "None"}
+`;
 
-Customer Name: ${name}
-Mobile Number: ${phone}
-Event Type: ${eventType}
-Event Date: ${date}
-Number of Guests: ${guests}
-Event Location: ${location}
-Additional Requirements: ${requirements || "None"}
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-Please contact me with the details. Thank you!`;
-
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-    // Open a temporary tab to avoid popup blocking
-    const whatsappWindow = window.open("about:blank", "_blank");
-
-    try {
-        const response = await fetch("/api/orders", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name,
-                phone,
-                eventType,
-                date,
-                guests,
-                location,
-                requirements
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error("Order could not be saved");
-        }
-
-        alert("Order saved successfully!");
-
-        if (whatsappWindow) {
-            whatsappWindow.location.href = url;
-        } else {
-            window.location.href = url;
-        }
-
-    } catch (error) {
-        if (whatsappWindow) {
-            whatsappWindow.close();
-        }
-
-        alert("Order could not be saved. Please try again.");
-        console.error(error);
-    }
+    window.open(url, "_blank");
 });
