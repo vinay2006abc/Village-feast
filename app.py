@@ -3,7 +3,7 @@ from database import create_tables, get_db_connection
 
 app = Flask(__name__)
 
-# Initialize SQLite database
+# Create database and bookings table
 create_tables()
 
 
@@ -13,55 +13,67 @@ def home():
     return render_template("index.html")
 
 
-# Save customer booking in SQLite
+# Customer booking API
 @app.route("/api/bookings", methods=["POST"])
 def save_booking():
+    conn = None
 
     try:
         data = request.get_json(silent=True) or {}
 
         name = str(data.get("name", "")).strip()
         phone = str(data.get("phone", "")).strip()
-
-        event_type = str(
-            data.get("eventType", data.get("event_type", ""))
-        ).strip()
-
-        event_date = str(
-            data.get("eventDate", data.get("event_date", ""))
-        ).strip()
-
-        guests = data.get("guests", data.get("numberOfGuests"))
-
+        event_type = str(data.get("eventType", "")).strip()
+        event_date = str(data.get("eventDate", "")).strip()
+        guests = data.get("guests")
         address = str(data.get("address", "")).strip()
+        requirements = str(data.get("requirements", "")).strip()
 
-        # Validate required fields
-        if not name or not phone:
+        # Validate required details
+        if not all([name, phone, event_type, event_date, guests, address]):
             return jsonify({
                 "success": False,
-                "message": "Name and phone number are required."
+                "message": "Please provide all required booking details."
             }), 400
 
-        # Save booking
+        if not phone.isdigit() or len(phone) != 10:
+            return jsonify({
+                "success": False,
+                "message": "Enter a valid 10-digit mobile number."
+            }), 400
+
+        try:
+            guests = int(guests)
+            if guests <= 0:
+                raise ValueError()
+        except (ValueError, TypeError):
+            return jsonify({
+                "success": False,
+                "message": "Enter a valid number of guests."
+            }), 400
+
+        # Save booking in SQLite
         conn = get_db_connection()
 
         cursor = conn.execute("""
             INSERT INTO bookings
-            (name, phone, event_type, event_date, guests, address)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (name, phone, event_type, event_date, guests,
+             address, requirements, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             name,
             phone,
             event_type,
             event_date,
             guests,
-            address
+            address,
+            requirements,
+            "Pending"
         ))
 
         booking_id = cursor.lastrowid
 
         conn.commit()
-        conn.close()
 
         return jsonify({
             "success": True,
@@ -70,17 +82,20 @@ def save_booking():
         }), 201
 
     except Exception as e:
+        app.logger.exception("Booking save failed: %s", str(e))
 
-        app.logger.exception(
-            "Booking save failed: %s", str(e)
-        )
+        if conn:
+            conn.rollback()
 
         return jsonify({
             "success": False,
             "message": "Unable to save booking."
         }), 500
 
+    finally:
+        if conn:
+            conn.close()
 
-# Run Flask application
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
