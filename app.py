@@ -19,19 +19,26 @@ from database import create_tables, get_db_connection
 app = Flask(__name__)
 
 # Session security
-app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+app.secret_key = os.environ.get("SECRET_KEY")
+
+if not app.secret_key:
+    raise RuntimeError("SECRET_KEY environment variable is missing.")
 
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = (
     os.environ.get("SESSION_COOKIE_SECURE", "false").lower() == "true"
 )
+app.config["PERMANENT_SESSION_LIFETIME"] = 1800
 
-# Admin credentials
+# Admin credentials from Environment Variables
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
-# Initialize Neon PostgreSQL database
+if not ADMIN_USERNAME or not ADMIN_PASSWORD:
+    raise RuntimeError("Admin credentials are not configured.")
+
+# Initialize database
 create_tables()
 
 
@@ -41,7 +48,7 @@ def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
 
-        if not session.get("admin_logged_in"):
+        if session.get("admin_logged_in") is not True:
 
             if request.path.startswith("/api/"):
                 return jsonify({
@@ -56,21 +63,19 @@ def admin_required(func):
     return wrapper
 
 
-# Homepage
+# Customer homepage
 @app.route("/")
 def home():
-
     return render_template("index.html")
 
 
-# Save customer booking
+# Customer booking submission
 @app.route("/api/bookings", methods=["POST"])
 def save_booking():
 
     conn = None
 
     try:
-
         data = request.get_json(silent=True) or {}
 
         name = str(data.get("name", "")).strip()
@@ -81,11 +86,7 @@ def save_booking():
         requirements = str(data.get("requirements", "")).strip()
 
         if not all([
-            name,
-            phone,
-            event_type,
-            event_date,
-            address
+            name, phone, event_type, event_date, address
         ]) or data.get("guests") in (None, ""):
 
             return jsonify({
@@ -94,21 +95,16 @@ def save_booking():
             }), 400
 
         if not phone.isdigit() or len(phone) != 10:
-
             return jsonify({
                 "success": False,
                 "message": "Enter a valid 10-digit mobile number."
             }), 400
 
         try:
-
             guests = int(data.get("guests"))
-
             if guests <= 0:
                 raise ValueError()
-
         except (ValueError, TypeError):
-
             return jsonify({
                 "success": False,
                 "message": "Enter a valid number of guests."
@@ -117,30 +113,17 @@ def save_booking():
         conn = get_db_connection()
 
         with conn.cursor() as cur:
-
             cur.execute("""
                 INSERT INTO bookings
                 (
-                    name,
-                    phone,
-                    event_type,
-                    event_date,
-                    guests,
-                    address,
-                    requirements,
-                    status
+                    name, phone, event_type, event_date,
+                    guests, address, requirements, status
                 )
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """, (
-                name,
-                phone,
-                event_type,
-                event_date,
-                guests,
-                address,
-                requirements,
-                "Pending"
+                name, phone, event_type, event_date,
+                guests, address, requirements, "Pending"
             ))
 
             booking_id = cur.fetchone()["id"]
@@ -154,7 +137,6 @@ def save_booking():
         }), 201
 
     except Exception:
-
         app.logger.exception("Booking save failed")
 
         if conn:
@@ -166,7 +148,6 @@ def save_booking():
         }), 500
 
     finally:
-
         if conn:
             conn.close()
 
@@ -175,11 +156,8 @@ def save_booking():
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
 
-    if session.get("admin_logged_in"):
+    if session.get("admin_logged_in") is True:
         return redirect(url_for("admin_dashboard"))
-
-    if not ADMIN_USERNAME or not ADMIN_PASSWORD:
-        return "Admin credentials are not configured.", 503
 
     if request.method == "POST":
 
@@ -193,6 +171,7 @@ def admin_login():
 
             session.clear()
             session["admin_logged_in"] = True
+            session.permanent = True
 
             return redirect(url_for("admin_dashboard"))
 
@@ -204,7 +183,7 @@ def admin_login():
     return render_template_string(LOGIN_HTML, error="")
 
 
-# Admin login HTML
+# Login page
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="en">
@@ -269,7 +248,6 @@ LOGIN_HTML = """
     <div class="login-box">
 
         <h2>Village Feast</h2>
-
         <p style="text-align:center;">Admin Login</p>
 
         {% if error %}
@@ -307,7 +285,6 @@ LOGIN_HTML = """
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
-
     return render_template("admin.html")
 
 
@@ -319,22 +296,13 @@ def get_admin_bookings():
     conn = None
 
     try:
-
         conn = get_db_connection()
 
         with conn.cursor() as cur:
-
             cur.execute("""
                 SELECT
-                    id,
-                    name,
-                    phone,
-                    event_type,
-                    event_date,
-                    guests,
-                    address,
-                    requirements,
-                    status
+                    id, name, phone, event_type, event_date,
+                    guests, address, requirements, status
                 FROM bookings
                 ORDER BY id DESC
             """)
@@ -347,7 +315,6 @@ def get_admin_bookings():
         })
 
     except Exception:
-
         app.logger.exception("Fetching bookings failed")
 
         return jsonify({
@@ -356,7 +323,6 @@ def get_admin_bookings():
         }), 500
 
     finally:
-
         if conn:
             conn.close()
 
@@ -372,19 +338,10 @@ def update_booking_status(booking_id):
     conn = None
 
     try:
-
         data = request.get_json(silent=True) or {}
-
         status = str(data.get("status", "")).strip()
 
-        allowed_statuses = [
-            "Pending",
-            "Confirmed",
-            "Completed"
-        ]
-
-        if status not in allowed_statuses:
-
+        if status not in ["Pending", "Confirmed", "Completed"]:
             return jsonify({
                 "success": False,
                 "message": "Invalid booking status."
@@ -393,7 +350,6 @@ def update_booking_status(booking_id):
         conn = get_db_connection()
 
         with conn.cursor() as cur:
-
             cur.execute("""
                 UPDATE bookings
                 SET status = %s
@@ -401,9 +357,7 @@ def update_booking_status(booking_id):
             """, (status, booking_id))
 
             if cur.rowcount == 0:
-
                 conn.rollback()
-
                 return jsonify({
                     "success": False,
                     "message": "Booking not found."
@@ -417,7 +371,6 @@ def update_booking_status(booking_id):
         })
 
     except Exception:
-
         app.logger.exception("Status update failed")
 
         if conn:
@@ -429,12 +382,11 @@ def update_booking_status(booking_id):
         }), 500
 
     finally:
-
         if conn:
             conn.close()
 
 
-# Delete completed booking
+# Delete completed booking only
 @app.route(
     "/api/admin/bookings/<int:booking_id>",
     methods=["DELETE"]
@@ -445,11 +397,9 @@ def delete_completed_booking(booking_id):
     conn = None
 
     try:
-
         conn = get_db_connection()
 
         with conn.cursor() as cur:
-
             cur.execute("""
                 DELETE FROM bookings
                 WHERE id = %s
@@ -457,22 +407,19 @@ def delete_completed_booking(booking_id):
                 RETURNING id
             """, (booking_id, "Completed"))
 
-            deleted_booking = cur.fetchone()
+            deleted = cur.fetchone()
 
-            if not deleted_booking:
-
+            if not deleted:
                 cur.execute("""
-                    SELECT status
+                    SELECT id, status
                     FROM bookings
                     WHERE id = %s
                 """, (booking_id,))
 
-                existing_booking = cur.fetchone()
-
+                existing = cur.fetchone()
                 conn.rollback()
 
-                if not existing_booking:
-
+                if not existing:
                     return jsonify({
                         "success": False,
                         "message": "Booking not found."
@@ -491,7 +438,6 @@ def delete_completed_booking(booking_id):
         })
 
     except Exception:
-
         app.logger.exception("Booking deletion failed")
 
         if conn:
@@ -503,7 +449,6 @@ def delete_completed_booking(booking_id):
         }), 500
 
     finally:
-
         if conn:
             conn.close()
 
@@ -523,7 +468,6 @@ def admin_logout():
 
 # Run application
 if __name__ == "__main__":
-
     app.run(
         host="0.0.0.0",
         port=5000
