@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const message = document.getElementById("dashboardMessage");
 
     let bookings = [];
+    let deletedCount = 0;
 
     function showMessage(text) {
         message.textContent = text;
@@ -32,13 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
             b => String(b.status).toLowerCase() === "confirmed"
         ).length;
 
-        // Permanent deletions are not stored in the current database.
-        deletedEl.textContent = "—";
+        deletedEl.textContent = deletedCount;
     }
 
     function createCell(value) {
+
         const td = document.createElement("td");
         td.textContent = value ?? "-";
+
         return td;
     }
 
@@ -70,12 +72,16 @@ document.addEventListener("DOMContentLoaded", () => {
         recordCount.textContent = `${filtered.length} Records`;
 
         if (!filtered.length) {
+
             const row = document.createElement("tr");
             const cell = createCell("No bookings found.");
+
             cell.colSpan = 8;
             cell.className = "empty-message";
+
             row.appendChild(cell);
             tableBody.appendChild(row);
+
             return;
         }
 
@@ -103,66 +109,113 @@ document.addEventListener("DOMContentLoaded", () => {
             row.appendChild(statusCell);
 
             const actionCell = document.createElement("td");
-            const select = document.createElement("select");
 
-            select.className = "status-select";
+            if (currentStatus !== "completed") {
 
-            ["Pending", "Confirmed", "Completed"].forEach(status => {
+                const select = document.createElement("select");
 
-                const option = document.createElement("option");
+                select.className = "status-select";
 
-                option.value = status;
-                option.textContent = status;
+                ["Pending", "Confirmed", "Completed"].forEach(status => {
 
-                option.selected =
-                    status.toLowerCase() === currentStatus;
+                    const option = document.createElement("option");
 
-                select.appendChild(option);
-            });
+                    option.value = status;
+                    option.textContent = status;
 
-            select.addEventListener("change", async () => {
+                    option.selected =
+                        status.toLowerCase() === currentStatus;
 
-                select.disabled = true;
+                    select.appendChild(option);
+                });
 
-                try {
+                select.addEventListener("change", async () => {
 
-                    const response = await fetch(
-                        `${API}/${booking.id}/status`,
-                        {
-                            method: "PATCH",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                status: select.value
-                            })
+                    select.disabled = true;
+
+                    try {
+
+                        const response = await fetch(
+                            `${API}/${booking.id}/status`,
+                            {
+                                method: "PATCH",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    status: select.value
+                                })
+                            }
+                        );
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.message);
                         }
-                    );
 
-                    const result = await response.json();
+                        showMessage("Booking status updated successfully.");
 
-                    if (!response.ok) {
-                        throw new Error(result.message);
+                        await loadBookings();
+
+                    } catch (error) {
+
+                        showMessage(error.message || "Status update failed.");
+                        select.value = booking.status;
+
+                    } finally {
+                        select.disabled = false;
+                    }
+                });
+
+                actionCell.appendChild(select);
+
+            } else {
+
+                const deleteBtn = document.createElement("button");
+
+                deleteBtn.type = "button";
+                deleteBtn.textContent = "Delete";
+                deleteBtn.className = "delete-btn";
+
+                deleteBtn.addEventListener("click", async () => {
+
+                    if (!confirm("Move this completed booking to Deleted section?")) {
+                        return;
                     }
 
-                    showMessage("Booking status updated successfully.");
+                    deleteBtn.disabled = true;
 
-                    await loadBookings();
+                    try {
 
-                } catch (error) {
+                        const response = await fetch(
+                            `${API}/${booking.id}`,
+                            {
+                                method: "DELETE"
+                            }
+                        );
 
-                    showMessage(error.message || "Status update failed.");
+                        const result = await response.json();
 
-                    select.value = booking.status;
+                        if (!response.ok) {
+                            throw new Error(result.message);
+                        }
 
-                } finally {
-                    select.disabled = false;
-                }
-            });
+                        showMessage("Booking moved to Deleted section.");
 
-            actionCell.appendChild(select);
+                        await loadBookings();
+
+                    } catch (error) {
+
+                        showMessage(error.message || "Delete failed.");
+                        deleteBtn.disabled = false;
+                    }
+                });
+
+                actionCell.appendChild(deleteBtn);
+            }
+
             row.appendChild(actionCell);
-
             tableBody.appendChild(row);
         });
     }
@@ -189,6 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? result.bookings
                 : [];
 
+            // Deleted count is loaded separately in a future API.
             updateStats();
             renderBookings();
 
@@ -206,9 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     refreshBtn.addEventListener("click", loadBookings);
-
     searchInput.addEventListener("input", renderBookings);
-
     statusFilter.addEventListener("change", renderBookings);
 
     loadBookings();
