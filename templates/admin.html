@@ -4,135 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village Feast | Admin Dashboard</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <script src="{{ url_for('static', filename='admin.js') }}" defer></script>
 </head>
 <body>
 
-    <div class="dashboard">
+<div class="admin-layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">VF</div>
+            <div>
+                <h2>Village Feast</h2>
+                <span>ADMIN PANEL</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+            <a href="#dashboard" class="nav-link active">
+                <span>▦</span> Dashboard
+            </a>
+            <a href="#bookings" class="nav-link">
+                <span>▤</span> Bookings
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="online-dot"></span>
+            Admin Dashboard
+        </div>
+    </aside>
+
+    <main class="main-content" id="dashboard">
 
         <header class="topbar">
             <div>
-                <h1>Village Feast</h1>
-                <p>Admin Dashboard</p>
+                <h1>Dashboard</h1>
+                <p>Manage your customer bookings</p>
             </div>
-            <button id="logoutBtn">Logout</button>
+
+            <button class="refresh-btn" id="refreshBtn">
+                ↻ Refresh
+            </button>
         </header>
 
-        <main class="container">
+        <section class="stats-grid">
 
-            <!-- EXISTING BOOKING STATISTICS -->
-            <section class="stats">
+            <div class="stat-card total">
+                <div class="stat-icon">▤</div>
+                <p>Total Bookings</p>
+                <h2 id="totalBookings">0</h2>
+            </div>
 
-                <div class="stat-card">
-                    <h3>Total Bookings</h3>
-                    <p id="totalBookings">0</p>
+            <div class="stat-card pending">
+                <div class="stat-icon">◷</div>
+                <p>Pending</p>
+                <h2 id="pendingBookings">0</h2>
+            </div>
+
+            <div class="stat-card confirmed">
+                <div class="stat-icon">✓</div>
+                <p>Confirmed</p>
+                <h2 id="confirmedBookings">0</h2>
+            </div>
+
+            <div class="stat-card deleted">
+                <div class="stat-icon">▱</div>
+                <p>Deleted</p>
+                <h2 id="deletedBookings">0</h2>
+            </div>
+
+        </section>
+
+        <section class="booking-panel" id="bookings">
+
+            <div class="panel-header">
+                <div>
+                    <h2>Customer Booking Details</h2>
+                    <p>View and manage customer reservations</p>
                 </div>
 
-                <div class="stat-card">
-                    <h3>Pending</h3>
-                    <p id="pendingBookings">0</p>
-                </div>
+                <span class="record-count" id="recordCount">
+                    0 Records
+                </span>
+            </div>
 
-                <div class="stat-card">
-                    <h3>Confirmed</h3>
-                    <p id="confirmedBookings">0</p>
-                </div>
+            <div class="toolbar">
 
-                <div class="stat-card">
-                    <h3>Completed</h3>
-                    <p id="completedBookings">0</p>
-                </div>
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search customer, phone or event..."
+                >
 
-            </section>
+                <select id="statusFilter">
+                    <option value="all">All Bookings</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                </select>
 
+            </div>
 
-            <!-- NEW DASHBOARD ANALYSIS -->
-            <section class="analytics-section">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Phone</th>
+                            <th>Event</th>
+                            <th>Event Date</th>
+                            <th>Guests</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
 
-                <h2>Dashboard Analysis</h2>
+                    <tbody id="bookingTableBody">
+                        <tr>
+                            <td colspan="8" class="empty-message">
+                                Loading bookings...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                <div class="analytics-grid">
+            <p class="message" id="dashboardMessage"></p>
 
-                    <!-- Monthly Analysis -->
-                    <div class="analytics-card">
-                        <h3>Monthly Booking Analysis</h3>
-                        <canvas id="monthlyChart"></canvas>
-                    </div>
+        </section>
 
-                    <!-- Event Analysis -->
-                    <div class="analytics-card">
-                        <h3>Event Type Analysis</h3>
-                        <canvas id="eventChart"></canvas>
-                    </div>
+        <footer class="footer">
+            © 2026 Village Feast. Admin Dashboard.
+        </footer>
 
-                    <!-- Guest Analysis -->
-                    <div class="analytics-card">
-                        <h3>Guest Count Analysis</h3>
-                        <canvas id="guestChart"></canvas>
-                    </div>
-
-                    <!-- Date-wise Trends -->
-                    <div class="analytics-card">
-                        <h3>Date-wise Booking Trends</h3>
-                        <canvas id="dateChart"></canvas>
-                    </div>
-
-                </div>
-
-                <button id="refreshAnalyticsBtn" type="button">
-                    Refresh Analytics
-                </button>
-
-            </section>
-
-
-            <!-- EXISTING CUSTOMER BOOKINGS -->
-            <section class="bookings-section">
-
-                <h2>Customer Bookings</h2>
-
-                <div class="table-container">
-
-                    <table>
-
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Customer</th>
-                                <th>Phone</th>
-                                <th>Event</th>
-                                <th>Date</th>
-                                <th>Guests</th>
-                                <th>Address</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="bookingTable">
-
-                            <tr>
-                                <td colspan="9">Loading bookings...</td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-        </main>
-
-    </div>
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- EXISTING ADMIN JAVASCRIPT -->
-    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+    </main>
+</div>
 
 </body>
 </html>
