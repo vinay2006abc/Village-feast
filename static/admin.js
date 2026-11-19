@@ -9,14 +9,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // Safely create table cells
+    // Create safe table cells
     function createCell(value) {
         const td = document.createElement("td");
         td.textContent = value ?? "";
         return td;
     }
 
-    // Load bookings from Neon database
+
+    // Load all bookings
     async function loadBookings() {
 
         bookingTable.innerHTML = "";
@@ -24,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const loadingRow = document.createElement("tr");
         const loadingCell = createCell("Loading bookings...");
         loadingCell.colSpan = 9;
+
         loadingRow.appendChild(loadingCell);
         bookingTable.appendChild(loadingRow);
 
@@ -31,7 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const response = await fetch("/api/admin/bookings", {
                 method: "GET",
-                credentials: "same-origin"
+                credentials: "same-origin",
+                cache: "no-store"
             });
 
             if (response.status === 401) {
@@ -39,14 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            if (!response.ok) {
-                throw new Error("Unable to fetch bookings.");
-            }
-
             const result = await response.json();
 
-            if (!result.success) {
-                throw new Error(result.message || "Failed to load bookings.");
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Unable to load bookings.");
             }
 
             const bookings = result.bookings || [];
@@ -68,6 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+
+            // Display each booking
             bookings.forEach(booking => {
 
                 const row = document.createElement("tr");
@@ -80,7 +81,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 row.appendChild(createCell(booking.guests));
                 row.appendChild(createCell(booking.address));
 
-                // Booking status dropdown
+
+                // Status dropdown
                 const statusCell = document.createElement("td");
 
                 const statusSelect = document.createElement("select");
@@ -102,6 +104,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 statusSelect.addEventListener("change", async () => {
 
+                    statusSelect.disabled = true;
+
                     await updateBookingStatus(
                         booking.id,
                         statusSelect.value
@@ -112,9 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 statusCell.appendChild(statusSelect);
                 row.appendChild(statusCell);
 
-                // Refresh action
+
+                // Actions column
                 const actionCell = document.createElement("td");
 
+
+                // Refresh button
                 const refreshButton = document.createElement("button");
 
                 refreshButton.textContent = "Refresh";
@@ -122,6 +129,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 refreshButton.addEventListener("click", loadBookings);
 
                 actionCell.appendChild(refreshButton);
+
+
+                // DELETE BUTTON FOR COMPLETED BOOKINGS ONLY
+                if (
+                    String(booking.status).trim().toLowerCase() === "completed"
+                ) {
+
+                    const deleteButton = document.createElement("button");
+
+                    deleteButton.textContent = "Delete";
+
+                    deleteButton.style.backgroundColor = "#dc3545";
+                    deleteButton.style.color = "white";
+                    deleteButton.style.border = "none";
+                    deleteButton.style.padding = "8px 14px";
+                    deleteButton.style.marginLeft = "8px";
+                    deleteButton.style.borderRadius = "5px";
+                    deleteButton.style.cursor = "pointer";
+
+                    deleteButton.addEventListener("click", async () => {
+
+                        await deleteBooking(booking.id, deleteButton);
+
+                    });
+
+                    actionCell.appendChild(deleteButton);
+
+                }
+
 
                 row.appendChild(actionCell);
 
@@ -148,27 +184,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // Update dashboard statistics
+    // Update statistics
     function updateStatistics(bookings) {
 
         totalBookings.textContent = bookings.length;
 
         pendingBookings.textContent = bookings.filter(
-            booking => booking.status === "Pending"
+            b => b.status === "Pending"
         ).length;
 
         confirmedBookings.textContent = bookings.filter(
-            booking => booking.status === "Confirmed"
+            b => b.status === "Confirmed"
         ).length;
 
         completedBookings.textContent = bookings.filter(
-            booking => booking.status === "Completed"
+            b => b.status === "Completed"
         ).length;
 
     }
 
 
-    // Update booking status in Neon
+    // Update booking status
     async function updateBookingStatus(bookingId, newStatus) {
 
         try {
@@ -209,7 +245,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.error("Status update error:", error);
 
-            alert("Unable to update booking status. Please try again.");
+            alert(error.message || "Unable to update status.");
+
+            await loadBookings();
+
+        }
+
+    }
+
+
+    // Delete completed booking
+    async function deleteBooking(bookingId, deleteButton) {
+
+        const confirmation = confirm(
+            "Are you sure you want to permanently delete this completed booking?"
+        );
+
+        if (!confirmation) {
+            return;
+        }
+
+        try {
+
+            deleteButton.disabled = true;
+            deleteButton.textContent = "Deleting...";
+
+            const response = await fetch(
+                `/api/admin/bookings/${encodeURIComponent(bookingId)}`,
+                {
+                    method: "DELETE",
+                    credentials: "same-origin"
+                }
+            );
+
+            if (response.status === 401) {
+                window.location.href = "/admin/login";
+                return;
+            }
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Delete failed.");
+            }
+
+            alert("Completed booking deleted successfully!");
+
+            await loadBookings();
+
+        } catch (error) {
+
+            console.error("Delete error:", error);
+
+            alert(error.message || "Unable to delete booking.");
 
             await loadBookings();
 
@@ -219,33 +307,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Admin logout
-    logoutBtn.addEventListener("click", async () => {
+    if (logoutBtn) {
 
-        try {
+        logoutBtn.addEventListener("click", async () => {
 
-            const response = await fetch("/admin/logout", {
-                method: "POST",
-                credentials: "same-origin"
-            });
+            try {
 
-            if (!response.ok) {
-                throw new Error("Logout failed.");
+                const response = await fetch("/admin/logout", {
+                    method: "POST",
+                    credentials: "same-origin"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Logout failed.");
+                }
+
+                window.location.href = "/admin/login";
+
+            } catch (error) {
+
+                console.error("Logout error:", error);
+
+                alert("Unable to logout.");
+
             }
 
-            window.location.href = "/admin/login";
+        });
 
-        } catch (error) {
-
-            console.error("Logout error:", error);
-
-            alert("Unable to logout. Please try again.");
-
-        }
-
-    });
+    }
 
 
-    // Load bookings when dashboard opens
+    // Start dashboard
     loadBookings();
 
 });
