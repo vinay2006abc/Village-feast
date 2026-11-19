@@ -1,268 +1,530 @@
-document.addEventListener("DOMContentLoaded", () => {
+import os
+import secrets
+from functools import wraps
 
-    const API = "/api/admin/bookings";
+from flask import (
+    Flask,
+    render_template,
+    render_template_string,
+    request,
+    jsonify,
+    redirect,
+    url_for,
+    session
+)
 
-    const totalEl = document.getElementById("totalBookings");
-    const pendingEl = document.getElementById("pendingBookings");
-    const confirmedEl = document.getElementById("confirmedBookings");
-    const deletedEl = document.getElementById("deletedBookings");
+from database import create_tables, get_db_connection
 
-    const tableBody = document.getElementById("bookingTableBody");
-    const searchInput = document.getElementById("searchInput");
-    const statusFilter = document.getElementById("statusFilter");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const recordCount = document.getElementById("recordCount");
-    const message = document.getElementById("dashboardMessage");
 
-    let bookings = [];
-    let deletedCount = 0;
+app = Flask(__name__)
 
-    function showMessage(text) {
-        message.textContent = text;
-    }
+# Session security
+app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
-    function updateStats() {
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = (
+    os.environ.get("SESSION_COOKIE_SECURE", "false").lower() == "true"
+)
 
-        totalEl.textContent = bookings.length;
+# Admin credentials
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
-        pendingEl.textContent = bookings.filter(
-            b => String(b.status).toLowerCase() === "pending"
-        ).length;
+# Initialize Neon PostgreSQL database
+create_tables()
 
-        confirmedEl.textContent = bookings.filter(
-            b => String(b.status).toLowerCase() === "confirmed"
-        ).length;
 
-        deletedEl.textContent = deletedCount;
-    }
+# Admin authentication
+def admin_required(func):
 
-    function createCell(value) {
+    @wraps(func)
+    def wrapper(*args, **kwargs):
 
-        const td = document.createElement("td");
-        td.textContent = value ?? "-";
+        if not session.get("admin_logged_in"):
 
-        return td;
-    }
+            if request.path.startswith("/api/"):
+                return jsonify({
+                    "success": False,
+                    "message": "Admin login required."
+                }), 401
 
-    function renderBookings() {
+            return redirect(url_for("admin_login"))
 
-        const search = searchInput.value.toLowerCase().trim();
-        const filter = statusFilter.value.toLowerCase();
+        return func(*args, **kwargs)
 
-        const filtered = bookings.filter(booking => {
+    return wrapper
 
-            const name = String(booking.name || "").toLowerCase();
-            const phone = String(booking.phone || "").toLowerCase();
-            const event = String(booking.event_type || "").toLowerCase();
 
-            const matchesSearch =
-                name.includes(search) ||
-                phone.includes(search) ||
-                event.includes(search);
+# Homepage
+@app.route("/")
+def home():
 
-            const matchesStatus =
-                filter === "all" ||
-                String(booking.status).toLowerCase() === filter;
+    return render_template("index.html")
 
-            return matchesSearch && matchesStatus;
-        });
 
-        tableBody.replaceChildren();
+# Save customer booking
+@app.route("/api/bookings", methods=["POST"])
+def save_booking():
 
-        recordCount.textContent = `${filtered.length} Records`;
+    conn = None
 
-        if (!filtered.length) {
+    try:
 
-            const row = document.createElement("tr");
-            const cell = createCell("No bookings found.");
+        data = request.get_json(silent=True) or {}
 
-            cell.colSpan = 8;
-            cell.className = "empty-message";
+        name = str(data.get("name", "")).strip()
+        phone = str(data.get("phone", "")).strip()
+        event_type = str(data.get("eventType", "")).strip()
+        event_date = str(data.get("eventDate", "")).strip()
+        address = str(data.get("address", "")).strip()
+        requirements = str(data.get("requirements", "")).strip()
 
-            row.appendChild(cell);
-            tableBody.appendChild(row);
+        if not all([
+            name,
+            phone,
+            event_type,
+            event_date,
+            address
+        ]) or data.get("guests") in (None, ""):
 
-            return;
+            return jsonify({
+                "success": False,
+                "message": "Please fill in all required details."
+            }), 400
+
+        if not phone.isdigit() or len(phone) != 10:
+
+            return jsonify({
+                "success": False,
+                "message": "Enter a valid 10-digit mobile number."
+            }), 400
+
+        try:
+
+            guests = int(data.get("guests"))
+
+            if guests <= 0:
+                raise ValueError()
+
+        except (ValueError, TypeError):
+
+            return jsonify({
+                "success": False,
+                "message": "Enter a valid number of guests."
+            }), 400
+
+        conn = get_db_connection()
+
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                INSERT INTO bookings
+                (
+                    name,
+                    phone,
+                    event_type,
+                    event_date,
+                    guests,
+                    address,
+                    requirements,
+                    status
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+            """, (
+                name,
+                phone,
+                event_type,
+                event_date,
+                guests,
+                address,
+                requirements,
+                "Pending"
+            ))
+
+            booking_id = cur.fetchone()["id"]
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Booking saved successfully.",
+            "booking_id": booking_id
+        }), 201
+
+    except Exception:
+
+        app.logger.exception("Booking save failed")
+
+        if conn:
+            conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to save booking."
+        }), 500
+
+    finally:
+
+        if conn:
+            conn.close()
+
+
+# Admin login
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+
+    if session.get("admin_logged_in"):
+        return redirect(url_for("admin_dashboard"))
+
+    if not ADMIN_USERNAME or not ADMIN_PASSWORD:
+        return "Admin credentials are not configured.", 503
+
+    if request.method == "POST":
+
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+
+        if (
+            secrets.compare_digest(username, ADMIN_USERNAME)
+            and secrets.compare_digest(password, ADMIN_PASSWORD)
+        ):
+
+            session.clear()
+            session["admin_logged_in"] = True
+
+            return redirect(url_for("admin_dashboard"))
+
+        return render_template_string(
+            LOGIN_HTML,
+            error="Invalid username or password."
+        )
+
+    return render_template_string(LOGIN_HTML, error="")
+
+
+# Admin login HTML
+LOGIN_HTML = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Feast Admin Login</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #edf2ee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
         }
 
-        filtered.forEach(booking => {
-
-            const row = document.createElement("tr");
-
-            row.appendChild(createCell(booking.id));
-            row.appendChild(createCell(booking.name));
-            row.appendChild(createCell(booking.phone));
-            row.appendChild(createCell(booking.event_type));
-            row.appendChild(createCell(booking.event_date));
-            row.appendChild(createCell(booking.guests));
-
-            const statusCell = document.createElement("td");
-            const badge = document.createElement("span");
-
-            const currentStatus =
-                String(booking.status || "Pending").toLowerCase();
-
-            badge.className = `status ${currentStatus}`;
-            badge.textContent = currentStatus;
-
-            statusCell.appendChild(badge);
-            row.appendChild(statusCell);
-
-            const actionCell = document.createElement("td");
-
-            if (currentStatus !== "completed") {
-
-                const select = document.createElement("select");
-
-                select.className = "status-select";
-
-                ["Pending", "Confirmed", "Completed"].forEach(status => {
-
-                    const option = document.createElement("option");
-
-                    option.value = status;
-                    option.textContent = status;
-
-                    option.selected =
-                        status.toLowerCase() === currentStatus;
-
-                    select.appendChild(option);
-                });
-
-                select.addEventListener("change", async () => {
-
-                    select.disabled = true;
-
-                    try {
-
-                        const response = await fetch(
-                            `${API}/${booking.id}/status`,
-                            {
-                                method: "PATCH",
-                                headers: {
-                                    "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({
-                                    status: select.value
-                                })
-                            }
-                        );
-
-                        const result = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(result.message);
-                        }
-
-                        showMessage("Booking status updated successfully.");
-
-                        await loadBookings();
-
-                    } catch (error) {
-
-                        showMessage(error.message || "Status update failed.");
-                        select.value = booking.status;
-
-                    } finally {
-                        select.disabled = false;
-                    }
-                });
-
-                actionCell.appendChild(select);
-
-            } else {
-
-                const deleteBtn = document.createElement("button");
-
-                deleteBtn.type = "button";
-                deleteBtn.textContent = "Delete";
-                deleteBtn.className = "delete-btn";
-
-                deleteBtn.addEventListener("click", async () => {
-
-                    if (!confirm("Move this completed booking to Deleted section?")) {
-                        return;
-                    }
-
-                    deleteBtn.disabled = true;
-
-                    try {
-
-                        const response = await fetch(
-                            `${API}/${booking.id}`,
-                            {
-                                method: "DELETE"
-                            }
-                        );
-
-                        const result = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(result.message);
-                        }
-
-                        showMessage("Booking moved to Deleted section.");
-
-                        await loadBookings();
-
-                    } catch (error) {
-
-                        showMessage(error.message || "Delete failed.");
-                        deleteBtn.disabled = false;
-                    }
-                });
-
-                actionCell.appendChild(deleteBtn);
-            }
-
-            row.appendChild(actionCell);
-            tableBody.appendChild(row);
-        });
-    }
-
-    async function loadBookings() {
-
-        refreshBtn.disabled = true;
-        refreshBtn.textContent = "Loading...";
-
-        try {
-
-            const response = await fetch(API, {
-                method: "GET",
-                cache: "no-store"
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || "Unable to load bookings.");
-            }
-
-            bookings = Array.isArray(result.bookings)
-                ? result.bookings
-                : [];
-
-            // Deleted count is loaded separately in a future API.
-            updateStats();
-            renderBookings();
-
-            showMessage("Bookings loaded successfully.");
-
-        } catch (error) {
-
-            showMessage(error.message || "Unable to load bookings.");
-
-        } finally {
-
-            refreshBtn.disabled = false;
-            refreshBtn.textContent = "↻ Refresh";
+        .login-box {
+            background: white;
+            padding: 35px;
+            width: 85%;
+            max-width: 360px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px #00000015;
         }
-    }
 
-    refreshBtn.addEventListener("click", loadBookings);
-    searchInput.addEventListener("input", renderBookings);
-    statusFilter.addEventListener("change", renderBookings);
+        h2 {
+            color: #183d2b;
+            text-align: center;
+        }
 
-    loadBookings();
+        input {
+            width: 100%;
+            padding: 13px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
 
-});
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #183d2b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h2>Village Feast</h2>
+
+        <p style="text-align:center;">Admin Login</p>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST">
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Admin Username"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Admin Password"
+                required
+            >
+
+            <button type="submit">Login</button>
+
+        </form>
+
+    </div>
+
+</body>
+</html>
+"""
+
+
+# Admin dashboard
+@app.route("/admin")
+@admin_required
+def admin_dashboard():
+
+    return render_template("admin.html")
+
+
+# Get all bookings
+@app.route("/api/admin/bookings", methods=["GET"])
+@admin_required
+def get_admin_bookings():
+
+    conn = None
+
+    try:
+
+        conn = get_db_connection()
+
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                SELECT
+                    id,
+                    name,
+                    phone,
+                    event_type,
+                    event_date,
+                    guests,
+                    address,
+                    requirements,
+                    status
+                FROM bookings
+                ORDER BY id DESC
+            """)
+
+            bookings = cur.fetchall()
+
+        return jsonify({
+            "success": True,
+            "bookings": bookings
+        })
+
+    except Exception:
+
+        app.logger.exception("Fetching bookings failed")
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to load bookings."
+        }), 500
+
+    finally:
+
+        if conn:
+            conn.close()
+
+
+# Update booking status
+@app.route(
+    "/api/admin/bookings/<int:booking_id>/status",
+    methods=["PATCH"]
+)
+@admin_required
+def update_booking_status(booking_id):
+
+    conn = None
+
+    try:
+
+        data = request.get_json(silent=True) or {}
+
+        status = str(data.get("status", "")).strip()
+
+        allowed_statuses = [
+            "Pending",
+            "Confirmed",
+            "Completed"
+        ]
+
+        if status not in allowed_statuses:
+
+            return jsonify({
+                "success": False,
+                "message": "Invalid booking status."
+            }), 400
+
+        conn = get_db_connection()
+
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                UPDATE bookings
+                SET status = %s
+                WHERE id = %s
+            """, (status, booking_id))
+
+            if cur.rowcount == 0:
+
+                conn.rollback()
+
+                return jsonify({
+                    "success": False,
+                    "message": "Booking not found."
+                }), 404
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Booking status updated successfully."
+        })
+
+    except Exception:
+
+        app.logger.exception("Status update failed")
+
+        if conn:
+            conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to update booking status."
+        }), 500
+
+    finally:
+
+        if conn:
+            conn.close()
+
+
+# Delete completed booking
+@app.route(
+    "/api/admin/bookings/<int:booking_id>",
+    methods=["DELETE"]
+)
+@admin_required
+def delete_completed_booking(booking_id):
+
+    conn = None
+
+    try:
+
+        conn = get_db_connection()
+
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                DELETE FROM bookings
+                WHERE id = %s
+                AND status = %s
+                RETURNING id
+            """, (booking_id, "Completed"))
+
+            deleted_booking = cur.fetchone()
+
+            if not deleted_booking:
+
+                cur.execute("""
+                    SELECT status
+                    FROM bookings
+                    WHERE id = %s
+                """, (booking_id,))
+
+                existing_booking = cur.fetchone()
+
+                conn.rollback()
+
+                if not existing_booking:
+
+                    return jsonify({
+                        "success": False,
+                        "message": "Booking not found."
+                    }), 404
+
+                return jsonify({
+                    "success": False,
+                    "message": "Only completed bookings can be deleted."
+                }), 403
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Completed booking deleted successfully."
+        })
+
+    except Exception:
+
+        app.logger.exception("Booking deletion failed")
+
+        if conn:
+            conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to delete booking."
+        }), 500
+
+    finally:
+
+        if conn:
+            conn.close()
+
+
+# Admin logout
+@app.route("/admin/logout", methods=["POST"])
+@admin_required
+def admin_logout():
+
+    session.clear()
+
+    return jsonify({
+        "success": True,
+        "message": "Logged out successfully."
+    })
+
+
+# Run application
+if __name__ == "__main__":
+
+    app.run(
+        host="0.0.0.0",
+        port=5000
+    )
