@@ -27,17 +27,17 @@ app.config["SESSION_COOKIE_SECURE"] = (
     os.environ.get("SESSION_COOKIE_SECURE", "false").lower() == "true"
 )
 
-# Admin credentials (configure in Render environment variables)
+# Admin credentials
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
 
-
-# Initialize database
+# Initialize Neon PostgreSQL database
 create_tables()
 
 
-# Admin authentication decorator
+# Admin authentication
 def admin_required(func):
+
     @wraps(func)
     def wrapper(*args, **kwargs):
 
@@ -59,6 +59,7 @@ def admin_required(func):
 # Homepage
 @app.route("/")
 def home():
+
     return render_template("index.html")
 
 
@@ -69,6 +70,7 @@ def save_booking():
     conn = None
 
     try:
+
         data = request.get_json(silent=True) or {}
 
         name = str(data.get("name", "")).strip()
@@ -99,6 +101,7 @@ def save_booking():
             }), 400
 
         try:
+
             guests = int(data.get("guests"))
 
             if guests <= 0:
@@ -163,6 +166,7 @@ def save_booking():
         }), 500
 
     finally:
+
         if conn:
             conn.close()
 
@@ -192,12 +196,15 @@ def admin_login():
 
             return redirect(url_for("admin_dashboard"))
 
-        return render_template_string(LOGIN_HTML, error="Invalid username or password.")
+        return render_template_string(
+            LOGIN_HTML,
+            error="Invalid username or password."
+        )
 
     return render_template_string(LOGIN_HTML, error="")
 
 
-# Admin login page HTML
+# Admin login HTML
 LOGIN_HTML = """
 <!DOCTYPE html>
 <html lang="en">
@@ -205,6 +212,7 @@ LOGIN_HTML = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village Feast Admin Login</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -255,9 +263,13 @@ LOGIN_HTML = """
         }
     </style>
 </head>
+
 <body>
+
     <div class="login-box">
+
         <h2>Village Feast</h2>
+
         <p style="text-align:center;">Admin Login</p>
 
         {% if error %}
@@ -265,15 +277,27 @@ LOGIN_HTML = """
         {% endif %}
 
         <form method="POST">
-            <input type="text" name="username"
-                   placeholder="Admin Username" required>
 
-            <input type="password" name="password"
-                   placeholder="Admin Password" required>
+            <input
+                type="text"
+                name="username"
+                placeholder="Admin Username"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Admin Password"
+                required
+            >
 
             <button type="submit">Login</button>
+
         </form>
+
     </div>
+
 </body>
 </html>
 """
@@ -283,10 +307,11 @@ LOGIN_HTML = """
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
+
     return render_template("admin.html")
 
 
-# Get all customer bookings
+# Get all bookings
 @app.route("/api/admin/bookings", methods=["GET"])
 @admin_required
 def get_admin_bookings():
@@ -294,6 +319,7 @@ def get_admin_bookings():
     conn = None
 
     try:
+
         conn = get_db_connection()
 
         with conn.cursor() as cur:
@@ -322,7 +348,7 @@ def get_admin_bookings():
 
     except Exception:
 
-        app.logger.exception("Fetching admin bookings failed")
+        app.logger.exception("Fetching bookings failed")
 
         return jsonify({
             "success": False,
@@ -330,6 +356,7 @@ def get_admin_bookings():
         }), 500
 
     finally:
+
         if conn:
             conn.close()
 
@@ -345,6 +372,7 @@ def update_booking_status(booking_id):
     conn = None
 
     try:
+
         data = request.get_json(silent=True) or {}
 
         status = str(data.get("status", "")).strip()
@@ -356,6 +384,7 @@ def update_booking_status(booking_id):
         ]
 
         if status not in allowed_statuses:
+
             return jsonify({
                 "success": False,
                 "message": "Invalid booking status."
@@ -372,6 +401,7 @@ def update_booking_status(booking_id):
             """, (status, booking_id))
 
             if cur.rowcount == 0:
+
                 conn.rollback()
 
                 return jsonify({
@@ -388,7 +418,7 @@ def update_booking_status(booking_id):
 
     except Exception:
 
-        app.logger.exception("Booking status update failed")
+        app.logger.exception("Status update failed")
 
         if conn:
             conn.rollback()
@@ -399,6 +429,81 @@ def update_booking_status(booking_id):
         }), 500
 
     finally:
+
+        if conn:
+            conn.close()
+
+
+# Delete completed booking
+@app.route(
+    "/api/admin/bookings/<int:booking_id>",
+    methods=["DELETE"]
+)
+@admin_required
+def delete_completed_booking(booking_id):
+
+    conn = None
+
+    try:
+
+        conn = get_db_connection()
+
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                DELETE FROM bookings
+                WHERE id = %s
+                AND status = %s
+                RETURNING id
+            """, (booking_id, "Completed"))
+
+            deleted_booking = cur.fetchone()
+
+            if not deleted_booking:
+
+                cur.execute("""
+                    SELECT status
+                    FROM bookings
+                    WHERE id = %s
+                """, (booking_id,))
+
+                existing_booking = cur.fetchone()
+
+                conn.rollback()
+
+                if not existing_booking:
+
+                    return jsonify({
+                        "success": False,
+                        "message": "Booking not found."
+                    }), 404
+
+                return jsonify({
+                    "success": False,
+                    "message": "Only completed bookings can be deleted."
+                }), 403
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Completed booking deleted successfully."
+        })
+
+    except Exception:
+
+        app.logger.exception("Booking deletion failed")
+
+        if conn:
+            conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to delete booking."
+        }), 500
+
+    finally:
+
         if conn:
             conn.close()
 
