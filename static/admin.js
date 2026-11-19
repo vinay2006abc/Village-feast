@@ -1,16 +1,11 @@
-/* =====================================
-   VILLAGE FEAST - ADMIN DASHBOARD JS
-===================================== */
-
 document.addEventListener("DOMContentLoaded", () => {
 
-    const API_URL = "/api/admin/dashboard";
-    const STATUS_URL = "/api/admin/bookings";
+    const API = "/api/admin/bookings";
 
-    const totalBookings = document.getElementById("totalBookings");
-    const pendingBookings = document.getElementById("pendingBookings");
-    const confirmedBookings = document.getElementById("confirmedBookings");
-    const deletedBookings = document.getElementById("deletedBookings");
+    const totalEl = document.getElementById("totalBookings");
+    const pendingEl = document.getElementById("pendingBookings");
+    const confirmedEl = document.getElementById("confirmedBookings");
+    const deletedEl = document.getElementById("deletedBookings");
 
     const tableBody = document.getElementById("bookingTableBody");
     const searchInput = document.getElementById("searchInput");
@@ -25,11 +20,20 @@ document.addEventListener("DOMContentLoaded", () => {
         message.textContent = text;
     }
 
-    function updateStats(stats = {}) {
-        totalBookings.textContent = stats.total ?? 0;
-        pendingBookings.textContent = stats.pending ?? 0;
-        confirmedBookings.textContent = stats.confirmed ?? 0;
-        deletedBookings.textContent = stats.deleted ?? 0;
+    function updateStats() {
+
+        totalEl.textContent = bookings.length;
+
+        pendingEl.textContent = bookings.filter(
+            b => String(b.status).toLowerCase() === "pending"
+        ).length;
+
+        confirmedEl.textContent = bookings.filter(
+            b => String(b.status).toLowerCase() === "confirmed"
+        ).length;
+
+        // Permanent deletions are not stored in the current database.
+        deletedEl.textContent = "—";
     }
 
     function createCell(value) {
@@ -41,22 +45,22 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderBookings() {
 
         const search = searchInput.value.toLowerCase().trim();
-        const selectedStatus = statusFilter.value;
+        const filter = statusFilter.value.toLowerCase();
 
         const filtered = bookings.filter(booking => {
 
-            const customer = String(booking.customer_name ?? "").toLowerCase();
-            const phone = String(booking.phone ?? "").toLowerCase();
-            const event = String(booking.event_type ?? "").toLowerCase();
+            const name = String(booking.name || "").toLowerCase();
+            const phone = String(booking.phone || "").toLowerCase();
+            const event = String(booking.event_type || "").toLowerCase();
 
             const matchesSearch =
-                customer.includes(search) ||
+                name.includes(search) ||
                 phone.includes(search) ||
                 event.includes(search);
 
             const matchesStatus =
-                selectedStatus === "all" ||
-                String(booking.status).toLowerCase() === selectedStatus;
+                filter === "all" ||
+                String(booking.status).toLowerCase() === filter;
 
             return matchesSearch && matchesStatus;
         });
@@ -65,9 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         recordCount.textContent = `${filtered.length} Records`;
 
-        if (filtered.length === 0) {
+        if (!filtered.length) {
             const row = document.createElement("tr");
-            const cell = createCell("No bookings found");
+            const cell = createCell("No bookings found.");
             cell.colSpan = 8;
             cell.className = "empty-message";
             row.appendChild(cell);
@@ -80,72 +84,77 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
 
             row.appendChild(createCell(booking.id));
-            row.appendChild(createCell(booking.customer_name));
+            row.appendChild(createCell(booking.name));
             row.appendChild(createCell(booking.phone));
             row.appendChild(createCell(booking.event_type));
             row.appendChild(createCell(booking.event_date));
             row.appendChild(createCell(booking.guests));
 
-            // Status
             const statusCell = document.createElement("td");
-            const statusBadge = document.createElement("span");
+            const badge = document.createElement("span");
 
-            const status = String(booking.status || "pending").toLowerCase();
+            const currentStatus =
+                String(booking.status || "Pending").toLowerCase();
 
-            statusBadge.className = `status ${status}`;
-            statusBadge.textContent = status;
+            badge.className = `status ${currentStatus}`;
+            badge.textContent = currentStatus;
 
-            statusCell.appendChild(statusBadge);
+            statusCell.appendChild(badge);
             row.appendChild(statusCell);
 
-            // Status management
             const actionCell = document.createElement("td");
             const select = document.createElement("select");
 
             select.className = "status-select";
 
-            ["pending", "confirmed", "completed"].forEach(value => {
-                const option = document.createElement("option");
-                option.value = value;
-                option.textContent =
-                    value.charAt(0).toUpperCase() + value.slice(1);
+            ["Pending", "Confirmed", "Completed"].forEach(status => {
 
-                if (status === value) {
-                    option.selected = true;
-                }
+                const option = document.createElement("option");
+
+                option.value = status;
+                option.textContent = status;
+
+                option.selected =
+                    status.toLowerCase() === currentStatus;
 
                 select.appendChild(option);
             });
 
             select.addEventListener("change", async () => {
 
-                const newStatus = select.value;
                 select.disabled = true;
 
                 try {
+
                     const response = await fetch(
-                        `${STATUS_URL}/${encodeURIComponent(booking.id)}/status`,
+                        `${API}/${booking.id}/status`,
                         {
-                            method: "POST",
+                            method: "PATCH",
                             headers: {
                                 "Content-Type": "application/json"
                             },
                             body: JSON.stringify({
-                                status: newStatus
+                                status: select.value
                             })
                         }
                     );
 
+                    const result = await response.json();
+
                     if (!response.ok) {
-                        throw new Error("Status update failed");
+                        throw new Error(result.message);
                     }
 
                     showMessage("Booking status updated successfully.");
-                    await loadDashboard();
+
+                    await loadBookings();
 
                 } catch (error) {
-                    showMessage("Unable to update status. Please try again.");
-                    select.value = status;
+
+                    showMessage(error.message || "Status update failed.");
+
+                    select.value = booking.status;
+
                 } finally {
                     select.disabled = false;
                 }
@@ -158,53 +167,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    async function loadDashboard() {
+    async function loadBookings() {
 
         refreshBtn.disabled = true;
         refreshBtn.textContent = "Loading...";
 
-        showMessage("Loading booking records...");
-
         try {
 
-            const response = await fetch(API_URL, {
+            const response = await fetch(API, {
                 method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                },
                 cache: "no-store"
             });
 
+            const result = await response.json();
+
             if (!response.ok) {
-                throw new Error("Dashboard data unavailable");
+                throw new Error(result.message || "Unable to load bookings.");
             }
 
-            const data = await response.json();
-
-            bookings = Array.isArray(data.bookings)
-                ? data.bookings
+            bookings = Array.isArray(result.bookings)
+                ? result.bookings
                 : [];
 
-            updateStats(data.stats);
+            updateStats();
             renderBookings();
 
-            showMessage("Booking records loaded successfully.");
+            showMessage("Bookings loaded successfully.");
 
         } catch (error) {
 
-            showMessage(
-                "Unable to load bookings. Please check the dashboard API."
-            );
-
-            tableBody.replaceChildren();
-
-            const row = document.createElement("tr");
-            const cell = createCell("Unable to load booking records.");
-            cell.colSpan = 8;
-            cell.className = "empty-message";
-
-            row.appendChild(cell);
-            tableBody.appendChild(row);
+            showMessage(error.message || "Unable to load bookings.");
 
         } finally {
 
@@ -213,12 +205,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    refreshBtn.addEventListener("click", loadDashboard);
+    refreshBtn.addEventListener("click", loadBookings);
 
     searchInput.addEventListener("input", renderBookings);
 
     statusFilter.addEventListener("change", renderBookings);
 
-    loadDashboard();
+    loadBookings();
 
 });
