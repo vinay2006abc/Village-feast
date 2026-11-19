@@ -3,41 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Village Feast | Admin Dashboard</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+
     <script src="{{ url_for('static', filename='admin.js') }}" defer></script>
 </head>
+
 <body>
 
 <div class="admin-layout">
 
+    <!-- SIDEBAR -->
     <aside class="sidebar">
+
         <div class="brand">
+
             <div class="brand-icon">VF</div>
+
             <div>
                 <h2>Village Feast</h2>
                 <span>ADMIN PANEL</span>
             </div>
+
         </div>
 
         <nav class="navigation">
+
             <a href="#dashboard" class="nav-link active">
                 <span>▦</span> Dashboard
             </a>
+
             <a href="#bookings" class="nav-link">
                 <span>▤</span> Bookings
             </a>
+
         </nav>
 
         <div class="sidebar-footer">
+
             <span class="online-dot"></span>
             Admin Dashboard
+
         </div>
+
     </aside>
 
+
+    <!-- MAIN CONTENT -->
     <main class="main-content" id="dashboard">
 
+
+        <!-- TOP HEADER -->
         <header class="topbar">
+
             <div>
                 <h1>Dashboard</h1>
                 <p>Manage your customer bookings</p>
@@ -46,49 +66,86 @@
             <button class="refresh-btn" id="refreshBtn">
                 ↻ Refresh
             </button>
+
         </header>
 
+
+        <!-- STATISTICS -->
         <section class="stats-grid">
 
+            <!-- TOTAL BOOKINGS -->
             <div class="stat-card total">
+
                 <div class="stat-icon">▤</div>
+
                 <p>Total Bookings</p>
+
                 <h2 id="totalBookings">0</h2>
+
             </div>
 
+
+            <!-- PENDING -->
             <div class="stat-card pending">
+
                 <div class="stat-icon">◷</div>
+
                 <p>Pending</p>
+
                 <h2 id="pendingBookings">0</h2>
+
             </div>
 
+
+            <!-- CONFIRMED -->
             <div class="stat-card confirmed">
+
                 <div class="stat-icon">✓</div>
+
                 <p>Confirmed</p>
+
                 <h2 id="confirmedBookings">0</h2>
+
             </div>
 
+
+            <!-- COMPLETED -->
             <div class="stat-card deleted">
-                <div class="stat-icon">▱</div>
-                <p>Deleted</p>
-                <h2 id="deletedBookings">0</h2>
+
+                <div class="stat-icon">✓</div>
+
+                <p>Completed</p>
+
+                <h2 id="completedBookings">0</h2>
+
             </div>
 
         </section>
 
+
+
+        <!-- CUSTOMER BOOKINGS -->
         <section class="booking-panel" id="bookings">
 
+
+            <!-- PANEL HEADER -->
             <div class="panel-header">
+
                 <div>
                     <h2>Customer Booking Details</h2>
+
                     <p>View and manage customer reservations</p>
                 </div>
 
                 <span class="record-count" id="recordCount">
                     0 Records
                 </span>
+
             </div>
 
+
+
+            <!-- SEARCH AND FILTER -->
             <div class="toolbar">
 
                 <input
@@ -98,48 +155,86 @@
                 >
 
                 <select id="statusFilter">
+
                     <option value="all">All Bookings</option>
+
                     <option value="pending">Pending</option>
+
                     <option value="confirmed">Confirmed</option>
+
                     <option value="completed">Completed</option>
+
                 </select>
 
             </div>
 
+
+
+            <!-- BOOKING TABLE -->
             <div class="table-wrapper">
+
                 <table>
+
                     <thead>
+
                         <tr>
+
                             <th>ID</th>
+
                             <th>Customer</th>
+
                             <th>Phone</th>
+
                             <th>Event</th>
+
                             <th>Event Date</th>
+
                             <th>Guests</th>
+
                             <th>Status</th>
+
                             <th>Action</th>
+
                         </tr>
+
                     </thead>
 
+
                     <tbody id="bookingTableBody">
+
                         <tr>
+
                             <td colspan="8" class="empty-message">
                                 Loading bookings...
                             </td>
+
                         </tr>
+
                     </tbody>
+
                 </table>
+
             </div>
 
+
+            <!-- DASHBOARD MESSAGE -->
             <p class="message" id="dashboardMessage"></p>
+
 
         </section>
 
+
+
+        <!-- FOOTER -->
         <footer class="footer">
+
             © 2026 Village Feast. Admin Dashboard.
+
         </footer>
 
+
     </main>
+
 </div>
 
 </body>
