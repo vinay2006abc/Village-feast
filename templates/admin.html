@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Village Feast | Admin Dashboard</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body>
@@ -20,7 +21,9 @@
 
         <main class="container">
 
+            <!-- EXISTING BOOKING STATISTICS -->
             <section class="stats">
+
                 <div class="stat-card">
                     <h3>Total Bookings</h3>
                     <p id="totalBookings">0</p>
@@ -40,13 +43,59 @@
                     <h3>Completed</h3>
                     <p id="completedBookings">0</p>
                 </div>
+
             </section>
 
+
+            <!-- NEW DASHBOARD ANALYSIS -->
+            <section class="analytics-section">
+
+                <h2>Dashboard Analysis</h2>
+
+                <div class="analytics-grid">
+
+                    <!-- Monthly Analysis -->
+                    <div class="analytics-card">
+                        <h3>Monthly Booking Analysis</h3>
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+
+                    <!-- Event Analysis -->
+                    <div class="analytics-card">
+                        <h3>Event Type Analysis</h3>
+                        <canvas id="eventChart"></canvas>
+                    </div>
+
+                    <!-- Guest Analysis -->
+                    <div class="analytics-card">
+                        <h3>Guest Count Analysis</h3>
+                        <canvas id="guestChart"></canvas>
+                    </div>
+
+                    <!-- Date-wise Trends -->
+                    <div class="analytics-card">
+                        <h3>Date-wise Booking Trends</h3>
+                        <canvas id="dateChart"></canvas>
+                    </div>
+
+                </div>
+
+                <button id="refreshAnalyticsBtn" type="button">
+                    Refresh Analytics
+                </button>
+
+            </section>
+
+
+            <!-- EXISTING CUSTOMER BOOKINGS -->
             <section class="bookings-section">
+
                 <h2>Customer Bookings</h2>
 
                 <div class="table-container">
+
                     <table>
+
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -62,17 +111,27 @@
                         </thead>
 
                         <tbody id="bookingTable">
+
                             <tr>
                                 <td colspan="9">Loading bookings...</td>
                             </tr>
+
                         </tbody>
+
                     </table>
+
                 </div>
+
             </section>
 
         </main>
+
     </div>
 
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- EXISTING ADMIN JAVASCRIPT -->
     <script src="{{ url_for('static', filename='admin.js') }}"></script>
 
 </body>
