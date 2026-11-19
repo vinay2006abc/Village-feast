@@ -459,3 +459,30 @@ tbody tr:hover {
         grid-template-columns: 1fr;
     }
 }
+/* Medium font size for Village Feast dashboard */
+
+body {
+    font-size: 16px;
+}
+
+h1, h2, h3 {
+    font-size: 20px;
+}
+
+table th,
+table td {
+    font-size: 15px;
+}
+
+input,
+select,
+button,
+label {
+    font-size: 15px;
+}
+
+p,
+.subtitle,
+footer {
+    font-size: 14px;
+}
