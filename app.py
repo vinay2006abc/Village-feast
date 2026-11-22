@@ -143,7 +143,6 @@ def save_booking():
                 "message": "Enter a valid number of guests."
             }), 400
 
-        # Generate secure customer booking reference
         booking_token = secrets.token_urlsafe(32)
 
         conn = get_db_connection()
@@ -530,16 +529,13 @@ def delete_completed_booking(booking_id):
 # ADMIN LOGOUT
 # =====================================
 
-@app.route("/admin/logout", methods=["POST"])
+@app.route("/admin/logout", methods=["GET"])
 @admin_required
 def admin_logout():
 
     session.clear()
 
-    return jsonify({
-        "success": True,
-        "message": "Logged out successfully."
-    })
+    return redirect(url_for("admin_login"))
 
 
 # =====================================
@@ -552,8 +548,3 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=5000
     )
-    
-@app.route('/admin/logout')
-def admin_logout():
-    session.clear()
-    return redirect('/admin/login')
