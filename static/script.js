@@ -12,10 +12,29 @@ const phoneNumber = "918008127068";
 const bookingStorageKey = "villageFeastBookingToken";
 
 
+// HIDE NOTIFICATION WHEN WEBSITE OPENS
+if (bookingNotification) {
+    bookingNotification.hidden = true;
+}
+
+
 // DISPLAY NOTIFICATION
 function showNotification(heading, message, scroll = false) {
 
-    notificationHeading.textContent = heading;
+    if (
+        scroll &&
+        heading === "Booking Submitted Successfully!"
+    ) {
+
+        notificationHeading.innerHTML =
+            '<marquee direction="left" scrollamount="5">Booking Submitted Successfully!</marquee>';
+
+    } else {
+
+        notificationHeading.textContent = heading;
+
+    }
+
     notificationMessage.textContent = message;
 
     bookingNotification.hidden = false;
@@ -25,78 +44,6 @@ function showNotification(heading, message, scroll = false) {
             behavior: "smooth",
             block: "center"
         });
-    }
-}
-
-
-// CHECK CUSTOMER BOOKING WHEN THEY RETURN
-async function checkPreviousBooking() {
-
-    let bookingToken;
-
-    try {
-        bookingToken = localStorage.getItem(bookingStorageKey);
-    } catch (error) {
-        console.error("Browser storage unavailable:", error);
-        return;
-    }
-
-    if (!bookingToken) {
-        return;
-    }
-
-    try {
-
-        const response = await fetch("/api/customer-booking-status", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                booking_token: bookingToken
-            }),
-            cache: "no-store"
-        });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-
-            if (response.status === 404) {
-                localStorage.removeItem(bookingStorageKey);
-            }
-
-            return;
-        }
-
-        // Show message according to booking status
-        if (result.status === "Pending") {
-
-            showNotification(
-                "Booking Submitted Successfully!",
-                "Please wait. Our team will contact you soon to confirm your booking."
-            );
-
-        } else if (result.status === "Confirmed") {
-
-            showNotification(
-                "Your Booking is Confirmed! ❤️",
-                "Great news! Your Village Feast catering booking has been confirmed."
-            );
-
-        } else if (result.status === "Completed") {
-
-            showNotification(
-                "Booking Completed Successfully!",
-                "Thank you for choosing Village Feast. We appreciate your support!"
-            );
-
-        }
-
-    } catch (error) {
-
-        console.error("Booking status check failed:", error);
-
     }
 }
 
@@ -141,7 +88,6 @@ if (bookingForm) {
         submitButton.textContent = "Submitting Booking...";
 
         // Open a new tab immediately to avoid popup blocking
-        // WhatsApp will open in this tab after successful saving
         const whatsappWindow = window.open("about:blank", "_blank");
 
         // Prepare booking data
@@ -186,25 +132,30 @@ if (bookingForm) {
             if (result.booking_token) {
 
                 try {
+
                     localStorage.setItem(
                         bookingStorageKey,
                         result.booking_token
                     );
+
                 } catch (storageError) {
+
                     console.error(
                         "Unable to save booking reference:",
                         storageError
                     );
+
                 }
 
             } else {
 
                 console.error("Booking reference was not returned.");
+
             }
 
             // Show successful booking notification
             showNotification(
-                "Once Booking Submitted Successfully!",
+                "Booking Submitted Successfully!",
                 "Please wait. Our team will contact you soon to confirm your booking.",
                 true
             );
@@ -235,8 +186,8 @@ Please contact me with the details. Thank you!`;
 
             } else {
 
-                // Fallback if browser blocks the new tab
                 window.location.href = url;
+
             }
 
         } catch (error) {
@@ -261,7 +212,3 @@ Please contact me with the details. Thank you!`;
     });
 
 }
-
-
-// CHECK PREVIOUS BOOKING WHEN WEBSITE LOADS
-checkPreviousBooking();
