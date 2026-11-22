@@ -102,28 +102,36 @@ def save_booking():
 
         try:
             guests = int(data.get("guests"))
+
             if guests <= 0:
                 raise ValueError()
+
         except (ValueError, TypeError):
             return jsonify({
                 "success": False,
                 "message": "Enter a valid number of guests."
             }), 400
 
+        # Generate secure customer booking reference
+        booking_token = secrets.token_urlsafe(32)
+
         conn = get_db_connection()
 
         with conn.cursor() as cur:
+
             cur.execute("""
                 INSERT INTO bookings
                 (
                     name, phone, event_type, event_date,
-                    guests, address, requirements, status
+                    guests, address, requirements, status,
+                    customer_token
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """, (
                 name, phone, event_type, event_date,
-                guests, address, requirements, "Pending"
+                guests, address, requirements, "Pending",
+                booking_token
             ))
 
             booking_id = cur.fetchone()["id"]
@@ -133,7 +141,8 @@ def save_booking():
         return jsonify({
             "success": True,
             "message": "Booking saved successfully.",
-            "booking_id": booking_id
+            "booking_id": booking_id,
+            "booking_token": booking_token
         }), 201
 
     except Exception:
@@ -145,6 +154,65 @@ def save_booking():
         return jsonify({
             "success": False,
             "message": "Unable to save booking."
+        }), 500
+
+    finally:
+        if conn:
+            conn.close()
+
+
+# Customer booking status check
+@app.route("/api/customer-booking-status", methods=["POST"])
+def customer_booking_status():
+
+    conn = None
+
+    try:
+        data = request.get_json(silent=True) or {}
+
+        token = str(
+            data.get("booking_token", "")
+        ).strip()
+
+        if not token or len(token) > 100:
+
+            return jsonify({
+                "success": False,
+                "message": "Invalid booking reference."
+            }), 400
+
+        conn = get_db_connection()
+
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                SELECT status
+                FROM bookings
+                WHERE customer_token = %s
+            """, (token,))
+
+            booking = cur.fetchone()
+
+        if not booking:
+
+            return jsonify({
+                "success": False,
+                "message": "Booking not found."
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "status": booking["status"]
+        })
+
+    except Exception:
+        app.logger.exception(
+            "Customer booking status check failed"
+        )
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to check booking status."
         }), 500
 
     finally:
@@ -299,6 +367,7 @@ def get_admin_bookings():
         conn = get_db_connection()
 
         with conn.cursor() as cur:
+
             cur.execute("""
                 SELECT
                     id, name, phone, event_type, event_date,
@@ -350,6 +419,7 @@ def update_booking_status(booking_id):
         conn = get_db_connection()
 
         with conn.cursor() as cur:
+
             cur.execute("""
                 UPDATE bookings
                 SET status = %s
@@ -358,6 +428,7 @@ def update_booking_status(booking_id):
 
             if cur.rowcount == 0:
                 conn.rollback()
+
                 return jsonify({
                     "success": False,
                     "message": "Booking not found."
@@ -400,6 +471,7 @@ def delete_completed_booking(booking_id):
         conn = get_db_connection()
 
         with conn.cursor() as cur:
+
             cur.execute("""
                 DELETE FROM bookings
                 WHERE id = %s
@@ -410,6 +482,7 @@ def delete_completed_booking(booking_id):
             deleted = cur.fetchone()
 
             if not deleted:
+
                 cur.execute("""
                     SELECT id, status
                     FROM bookings
@@ -468,6 +541,7 @@ def admin_logout():
 
 # Run application
 if __name__ == "__main__":
+
     app.run(
         host="0.0.0.0",
         port=5000
