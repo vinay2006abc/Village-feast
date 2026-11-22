@@ -31,6 +31,7 @@
     <p class="subtitle">Making every celebration delicious</p>
 
     <div class="service-container">
+
         <div class="service-card">
             <div class="service-icon">💍</div>
             <h3>Wedding Catering</h3>
@@ -48,11 +49,13 @@
             <h3>Family Functions</h3>
             <p>Food arrangements for all your family celebrations.</p>
         </div>
+
     </div>
 </section>
 
 <section class="booking" id="booking">
     <div class="booking-box">
+
         <h2>Book Your Catering</h2>
         <p>Fill in your details. We'll connect you through WhatsApp.</p>
 
@@ -94,10 +97,40 @@
             <button type="submit" class="submit-btn">
                 Submit Booking on WhatsApp
             </button>
+
         </form>
 
-        <p class="note">Your booking request will open in WhatsApp for confirmation.</p>
+        <p class="note">
+            Your booking request will open in WhatsApp for confirmation.
+        </p>
+
     </div>
+</section>
+
+<!-- BOOKING NOTIFICATION -->
+<section id="bookingNotification"
+         class="booking-notification"
+         aria-live="polite"
+         hidden>
+
+    <div class="notification-content">
+
+        <h3 id="notificationHeading">
+            Booking Submitted Successfully!
+        </h3>
+
+        <p>Thank you for choosing Village Feast ❤️</p>
+
+        <p id="notificationMessage">
+            Please wait. Our team will contact you soon to confirm your booking.
+        </p>
+
+        <p class="notification-footer">
+            Your happiness is our priority!
+        </p>
+
+    </div>
+
 </section>
 
 <footer>
@@ -107,5 +140,6 @@
 </footer>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
 </html>
