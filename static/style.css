@@ -259,6 +259,54 @@ textarea {
     color: #806B69;
 }
 
+/* BOOKING SUCCESS NOTIFICATION */
+
+.booking-notification {
+    background: #351321;
+    color: #FFFFFF;
+    padding: 22px 15px;
+    text-align: center;
+    border-top: 3px solid #D6AD69;
+    border-bottom: 3px solid #D6AD69;
+    overflow: hidden;
+}
+
+.booking-notification[hidden] {
+    display: none;
+}
+
+.notification-content h3 {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    color: #F1D69A;
+    font-size: 21px;
+    margin-bottom: 12px;
+    white-space: nowrap;
+    animation: notificationScroll 12s linear infinite;
+}
+
+.notification-content p {
+    margin: 8px 0;
+    line-height: 1.6;
+    color: #FFFFFF;
+}
+
+.notification-content .notification-footer {
+    color: #F1D69A;
+    font-weight: bold;
+}
+
+@keyframes notificationScroll {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+}
+
 /* FOOTER */
 
 footer {
@@ -314,5 +362,26 @@ footer p {
     .services h2,
     .booking h2 {
         font-size: 28px;
+    }
+
+    .notification-content h3 {
+        font-size: 18px;
+    }
+
+    .notification-content p {
+        font-size: 14px;
+    }
+}
+
+/* RESPECT REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    .notification-content h3 {
+        animation: none;
     }
 }
