@@ -1,55 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Village Feast Admin Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Feast - Admin Login</title>
+
     <style>
-        body {
-            font-family: Arial;
-            background: #f2f2f2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .login-box {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 300px;
-            text-align: center;
-        }
-
-        input, button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
-        button {
-            background: #263238;
-            color: white;
-            border: none;
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f4fff0, #d9f7c8, #efffe9);
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 22px;
+            box-shadow: 0 8px 30px rgba(30, 100, 20, 0.15);
+            text-align: center;
+            border: 1px solid #e0f2d8;
+        }
+
+        .logo {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #e7f8dd;
+            border: 3px solid #6abf45;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            font-size: 55px;
+        }
+
+        .brand-name {
+            color: #14532d;
+            font-size: 29px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .brand-line {
+            width: 65px;
+            height: 3px;
+            background: #65b747;
+            margin: 10px auto 20px;
+            border-radius: 5px;
+        }
+
+        .login-title {
+            background: #e1f7d6;
+            color: #14532d;
+            padding: 13px;
+            border-radius: 30px;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 17px 18px;
+            border: 1.5px solid #39833c;
+            border-radius: 15px;
+            outline: none;
+            font-size: 16px;
+            background: #ffffff;
+            color: #14532d;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #218c35;
+            box-shadow: 0 0 7px rgba(40, 150, 50, 0.2);
+        }
+
+        .input-group input::placeholder {
+            color: #888888;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 17px;
+            top: 50%;
+            transform: translateY(-50%);
             cursor: pointer;
+            font-size: 13px;
+            color: #267b32;
+            background: none;
+            border: none;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 7px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(90deg, #43b414, #08751e);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(90deg, #329b0b, #075c19);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 25px;
+            color: #287b32;
+            font-size: 15px;
+            font-style: italic;
+        }
+
+        .error-message {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 25px 20px;
+            }
+
+            .brand-name {
+                font-size: 25px;
+            }
+
+            .login-title {
+                font-size: 19px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="login-box">
-    <h2>Village Feast</h2>
-    <h3>Admin Login</h3>
+    <div class="login-container">
 
-    <form method="POST">
-        <input type="password"
-               name="password"
-               placeholder="Enter Admin Password"
-               required>
+        <div class="logo">
+            🍽️
+        </div>
 
-        <button type="submit">Login</button>
-    </form>
-</div>
+        <h1 class="brand-name">VILLAGE FEAST</h1>
+
+        <div class="brand-line"></div>
+
+        <h2 class="login-title">🔐 Admin Login</h2>
+
+        <form action="{{ url_for('admin_login') }}" method="POST">
+
+            {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <div class="input-group">
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div class="input-group">
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="togglePassword()"
+                >
+                    Show
+                </button>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                ➜ Submit
+            </button>
+
+        </form>
+
+        <div class="footer">
+            🌿 Good Food • Great Mood 🌿
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+            const password = document.getElementById("password");
+            const button = document.querySelector(".password-toggle");
+
+            if (password.type === "password") {
+                password.type = "text";
+                button.textContent = "Hide";
+            } else {
+                password.type = "password";
+                button.textContent = "Show";
+            }
+        }
+    </script>
 
 </body>
 </html>
