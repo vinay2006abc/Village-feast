@@ -546,3 +546,48 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=5000
     )
+# ==============================
+# VILLAGE FEAST ADMIN LOGIN
+# ==============================
+
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "ChangeThisPassword123"
+
+
+@app.route("/login", methods=["GET", "POST"])
+def admin_login():
+
+    if request.method == "POST":
+
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+
+            session["admin_logged_in"] = True
+
+            return redirect("/admin")
+
+        return render_template(
+            "login.html",
+            error="Invalid username or password"
+        )
+
+    return render_template("login.html")
+
+
+@app.before_request
+def protect_admin_dashboard():
+
+    if request.path == "/admin":
+
+        if not session.get("admin_logged_in"):
+            return redirect("/login")
+
+
+@app.route("/logout")
+def admin_logout():
+
+    session.pop("admin_logged_in", None)
+
+    return redirect("/login")
