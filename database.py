@@ -41,7 +41,8 @@ def create_tables():
                     address TEXT,
                     requirements TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    status TEXT DEFAULT 'Pending'
+                    status TEXT DEFAULT 'Pending',
+                    customer_token TEXT
                 )
             """)
 
@@ -54,6 +55,20 @@ def create_tables():
             cur.execute("""
                 ALTER TABLE bookings
                 ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'Pending'
+            """)
+
+            # Add customer booking reference
+            cur.execute("""
+                ALTER TABLE bookings
+                ADD COLUMN IF NOT EXISTS customer_token TEXT
+            """)
+
+            # Ensure customer tokens are unique
+            cur.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS
+                idx_bookings_customer_token
+                ON bookings(customer_token)
+                WHERE customer_token IS NOT NULL
             """)
 
         conn.commit()
