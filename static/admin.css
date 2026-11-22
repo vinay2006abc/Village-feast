@@ -847,3 +847,25 @@ td select {
     font-size: 12px;
     font-weight: 600;
 }
+.logout-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.logout-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #8b0000;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.logout-btn:hover {
+    background: #600000;
+    transform: translateY(-2px);
+}
