@@ -552,7 +552,8 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=5000
     )
-    @app.route('/admin/logout')
+    
+@app.route('/admin/logout')
 def admin_logout():
     session.clear()
     return redirect('/admin/login')
