@@ -3,116 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Village Feast | Catering Services</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-    <style>
-        [hidden] {
-            display: none !important;
-        }
-    </style>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
-<header>
-    <div class="logo">🍽️ Village Feast</div>
+<!-- HEADER -->
+<header class="header">
+    <div class="logo">
+        <span class="logo-icon">🍃</span>
+        <div>
+            <h2>Village Feast</h2>
+            <small>Catering Services</small>
+        </div>
+    </div>
+
     <nav>
-        <a href="#home">Home</a>
-        <a href="#services">Services</a>
-        <a href="#booking">Book Now</a>
+        <a href="#home">⌂ Home</a>
+        <a href="#services">♨ Services</a>
+        <a href="#booking">▦ Book Now</a>
+        <a class="whatsapp-nav"
+           href="https://wa.me/918008127068"
+           target="_blank">☏ WhatsApp</a>
     </nav>
 </header>
 
+
+<!-- HERO SECTION -->
 <section class="hero" id="home">
+
     <div class="hero-content">
-        <p class="tagline">TRADITIONAL TASTE • SPECIAL MOMENTS</p>
-        <h1>Good Food.<br><span>Great Memories.</span></h1>
-        <p>Delicious food and catering services for every special occasion.</p>
-        <a href="#booking" class="main-btn">Book Your Catering</a>
-    </div>
-</section>
 
-<section class="services" id="services">
-    <h2>Our Catering Services</h2>
-    <p class="subtitle">Making every celebration delicious</p>
-
-    <div class="service-container">
-
-        <div class="service-card">
-            <div class="service-icon">💍</div>
-            <h3>Wedding Catering</h3>
-            <p>Make your special day memorable with delicious food.</p>
-        </div>
-
-        <div class="service-card">
-            <div class="service-icon">🎂</div>
-            <h3>Birthday Parties</h3>
-            <p>Celebrate birthdays with tasty food and great service.</p>
-        </div>
-
-        <div class="service-card">
-            <div class="service-icon">🎉</div>
-            <h3>Family Functions</h3>
-            <p>Food arrangements for all your family celebrations.</p>
-        </div>
-
-    </div>
-</section>
-
-<section class="booking" id="booking">
-    <div class="booking-box">
-
-        <h2>Book Your Catering</h2>
-        <p>Fill in your details. We'll connect you through WhatsApp.</p>
-
-        <form id="bookingForm">
-
-            <label>Customer Name</label>
-            <input type="text" id="customerName"
-                   placeholder="Enter your name" required>
-
-            <label>Mobile Number</label>
-            <input type="tel" id="customerPhone"
-                   placeholder="Enter your mobile number"
-                   pattern="[0-9]{10}" maxlength="10" required>
-
-            <label>Event Type</label>
-            <select id="eventType" required>
-                <option value="">Select event</option>
-                <option>Wedding</option>
-                <option>Birthday Party</option>
-                <option>Family Function</option>
-                <option>Other</option>
-            </select>
-
-            <label>Event Date</label>
-            <input type="date" id="eventDate" required>
-
-            <label>Number of Guests</label>
-            <input type="number" id="guests"
-                   min="1" placeholder="Enter guest count" required>
-
-            <label>Event Location</label>
-            <input type="text" id="eventLocation"
-                   placeholder="Enter event location" required>
-
-            <label>Additional Requirements</label>
-            <textarea id="requirements"
-                      placeholder="Tell us your food requirements"></textarea>
-
-            <button type="submit" class="submit-btn">
-                Submit Booking on WhatsApp
-            </button>
-
-        </form>
-
-        <p class="note">
-            Your booking request will open in WhatsApp for confirmation.
+        <p class="tagline">
+            TRADITIONAL TASTE • SPECIAL MOMENTS
         </p>
 
+        <h1>
+            Good Food.<br>
+            <span>Great Memories.</span>
+        </h1>
+
+        <p class="hero-description">
+            Delicious food and catering services
+            for every special occasion.
+        </p>
+
+        <a href="#booking" class="main-btn">
+            ▦ Book Your Catering →
+        </a>
+
     </div>
+
+    <div class="hero-image"></div>
+
 </section>
+
+
+<!-- MAIN CONTENT -->
+<main class="main-container">
+
+    <!-- SERVICES -->
+    <section class="services" id="services">
+
+        <div class="section-heading">
+            <span>♨</span>
+            <h2>Our Catering Services</h2>
+            <p>Making every celebration delicious</p>
+        </div>
+
+        <div class="service-container">
+
+            <div class="service-card wedding">
+                <div class="service-image"></div>
+
+                <div class="service-info">
+                    <h3>💍 Wedding Catering</h3>
+                    <p>
+                        Make your special day memorable
+                        with delicious food.
+                    </p>
+                    <a href="#booking" class="learn-btn">
+                        Learn More →
+                    </a>
+                </div>
+            </div>
+
+
+            <div class="service-card birthday">
+                <div class="service-image"></div>
+
+                <div class="service-info">
+                    <h3>🎂 Birthday Parties</h3>
+                    <p>
+                        Celebrate birthdays with tasty
+                        food and great service.
+                    </p>
+                    <a href="#booking" class="learn-btn">
+                        Learn More →
+                    </a>
+                </div>
+            </div>
+
+
+            <div class="service-card family">
+                <div class="service-image"></div>
+
+                <div class="service-info">
+                    <h3>👨‍👩‍👧 Family Functions</h3>
+                    <p>
+                        Food arrangements for all
+                        your family celebrations.
+                    </p>
+                    <a href="#booking" class="learn-btn">
+                        Learn More →
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- BOOKING FORM -->
+    <section class="booking" id="booking">
+
+        <div class="booking-box">
+
+            <div class="booking-heading">
+                <span>🍽️</span>
+
+                <div>
+                    <h2>Book Your Catering</h2>
+                    <p>
+                        Fill in your details. We'll connect
+                        you through WhatsApp.
+                    </p>
+                </div>
+            </div>
+
+
+            <form id="bookingForm">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text"
+                               id="customerName"
+                               placeholder="Enter your name"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event Date</label>
+                        <input type="date"
+                               id="eventDate"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="tel"
+                               id="customerPhone"
+                               placeholder="Enter your mobile number"
+                               pattern="[0-9]{10}"
+                               maxlength="10"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Number of Guests</label>
+                        <input type="number"
+                               id="guests"
+                               min="1"
+                               placeholder="Enter guest count"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event Type</label>
+                        <select id="eventType" required>
+                            <option value="">Select event</option>
+                            <option>Wedding</option>
+                            <option>Birthday Party</option>
+                            <option>Family Function</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event Location</label>
+                        <input type="text"
+                               id="eventLocation"
+                               placeholder="Enter event location"
+                               required>
+                    </div>
+
+                </div>
+
+
+                <div class="form-group full-width">
+                    <label>Additional Requirements</label>
+                    <textarea id="requirements"
+                              placeholder="Tell us your food requirements"></textarea>
+                </div>
+
+
+                <button type="submit" class="submit-btn">
+                    ☏ Submit Booking on WhatsApp
+                </button>
+
+            </form>
+
+            <p class="note">
+                🔒 Your booking request will open in WhatsApp
+                for confirmation.
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
 
 <!-- BOOKING NOTIFICATION -->
 <section id="bookingNotification"
@@ -123,15 +241,14 @@
     <div class="notification-content">
 
         <h3 id="notificationHeading">
-            <marquee direction="left" scrollamount="5">
-                Booking Submitted Successfully!
-            </marquee>
+            Booking Submitted Successfully!
         </h3>
 
         <p>Thank you for choosing Village Feast ❤️</p>
 
         <p id="notificationMessage">
-            Please wait. Our team will contact you soon to confirm your booking.
+            Please wait. Our team will contact you soon
+            to confirm your booking.
         </p>
 
         <p class="notification-footer">
@@ -142,11 +259,25 @@
 
 </section>
 
-<footer>
-    <h3>🍽️ Village Feast</h3>
-    <p>Bringing people together with delicious food.</p>
-    <p>© 2026 Village Feast. All rights reserved.</p>
+
+<!-- FOOTER -->
+<footer class="footer">
+
+    <div class="footer-logo">
+        <h2>🍃 Village Feast</h2>
+        <small>Catering Services</small>
+    </div>
+
+    <div class="footer-message">
+        Bringing people together with delicious food.
+    </div>
+
+    <div class="footer-copy">
+        © 2026 Village Feast. All rights reserved.
+    </div>
+
 </footer>
+
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
