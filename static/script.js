@@ -204,7 +204,7 @@ if (bookingForm) {
 
             // Show successful booking notification
             showNotification(
-                "Booking Submitted Successfully!",
+                "Once Booking Submitted Successfully!",
                 "Please wait. Our team will contact you soon to confirm your booking.",
                 true
             );
