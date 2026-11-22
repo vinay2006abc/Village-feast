@@ -838,3 +838,12 @@ button:disabled {
     }
 
 }
+td select {
+    padding: 8px 10px;
+    border: 1px solid #d5e6ce;
+    border-radius: 7px;
+    background: #f9fff5;
+    color: #06451c;
+    font-size: 12px;
+    font-weight: 600;
+}
