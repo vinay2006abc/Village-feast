@@ -62,64 +62,67 @@
 
     <div class="section-heading">
       <small>OUR SPECIALTIES</small>
-      <h2>Explore Our Food Menu</h2>
-      <p>Traditional taste for every special occasion.</p>
+      <h2>Our Menu</h2>
+      <p>Delicious food for every occasion.</p>
     </div>
 
     <div class="menu-grid">
 
       <!-- NON VEG -->
-      <div class="menu-image">
-    <img
-        src="https://images.pexels.com/photos/20642812/pexels-photo-20642812.jpeg?auto=compress&cs=tinysrgb&w=900"
-        alt="Chicken Biryani"
-        loading="eager"
-        onerror="this.alt='Chicken Biryani image unavailable'; this.parentElement.classList.add('image-fallback')">
-</div>
-          <span class="image-fallback-label">🍗 Biryani</span>
+      <article class="menu-card">
+
+        <div class="menu-image">
+          <img
+            src="https://images.unsplash.com/photo-1563379091339-03246963d51a?auto=format&fit=crop&w=900&q=85"
+            alt="Non Veg Biryani"
+            onerror="this.remove();this.parentElement.classList.add('image-fallback')">
+          <span class="image-fallback-label">🍗 Non Veg</span>
         </div>
 
-        <div class="menu-info">
-          <h3>Non-Veg Specials</h3>
-          <p>Chicken Biryani, Mutton Biryani and delicious curries.</p>
-          <a href="#booking" class="text-link">Choose from menu ↓</a>
+        <div class="menu-info nonveg-label">
+          <span class="menu-icon">🍗</span>
+          <h3>Non Veg</h3>
+          <a href="#booking" aria-label="Choose Non Veg">➜</a>
         </div>
+
       </article>
 
       <!-- VEG -->
       <article class="menu-card">
+
         <div class="menu-image">
           <img
             src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=900&q=85"
-            alt="Vegetarian Indian Meal"
+            alt="Vegetarian Food"
             onerror="this.remove();this.parentElement.classList.add('image-fallback')">
-
-          <span class="image-fallback-label">🥗 Veg Meals</span>
+          <span class="image-fallback-label">🥗 Veg</span>
         </div>
 
-        <div class="menu-info">
-          <h3>Veg Specials</h3>
-          <p>Traditional rice, sambar, rasam, curd and sweets.</p>
-          <a href="#booking" class="text-link">Choose from menu ↓</a>
+        <div class="menu-info veg-label">
+          <span class="menu-icon">🥬</span>
+          <h3>Veg</h3>
+          <a href="#booking" aria-label="Choose Veg">➜</a>
         </div>
+
       </article>
 
       <!-- TIFFIN -->
       <article class="menu-card">
+
         <div class="menu-image">
           <img
             src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=900&q=85"
-            alt="Indian Tiffin"
+            alt="South Indian Tiffin"
             onerror="this.remove();this.parentElement.classList.add('image-fallback')">
-
           <span class="image-fallback-label">🍽️ Tiffin</span>
         </div>
 
-        <div class="menu-info">
-          <h3>Tiffin Specials</h3>
-          <p>Idli, Vada, Pongal, Chapathi and Poori.</p>
-          <a href="#booking" class="text-link">Choose from menu ↓</a>
+        <div class="menu-info tiffin-label">
+          <span class="menu-icon">🍽️</span>
+          <h3>Tiffin</h3>
+          <a href="#booking" aria-label="Choose Tiffin">➜</a>
         </div>
+
       </article>
 
     </div>
