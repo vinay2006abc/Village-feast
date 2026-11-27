@@ -3,420 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Village Feast | Catering Services</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
-<!-- HEADER -->
-<header>
-    <nav class="container">
-        <a href="#home" class="logo">Village <span>Feast.</span></a>
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">Village <span>Feast.</span></div>
 
-        <ul class="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#menu">Menu</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#booking">Booking</a></li>
-        </ul>
-
-        <a href="#booking" class="btn">Book Now</a>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#menu">Menu</a>
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a href="#booking">Booking</a>
     </nav>
 </header>
 
-<!-- HERO -->
-<section class="hero" id="home">
-    <div class="container">
-        <div class="hero-content">
-            <span class="eyebrow">Welcome to Village Feast</span>
-
-            <h1>Delicious Food.<br>
-                <span>Beautiful Moments.</span>
-            </h1>
-
-            <p>
-                Bringing people together with delicious food,
-                traditional taste and catering for your special occasions.
-            </p>
-
-            <a href="#menu" class="btn">Explore Our Menu</a>
-            <a href="#booking" class="btn btn-light">Book Catering</a>
-        </div>
-    </div>
+<!-- HOME -->
+<section id="home" class="hero">
+    <h1>Welcome to Village Feast</h1>
+    <p>Traditional Taste for Every Special Occasion</p>
+    <a href="#booking" class="btn">Book Catering</a>
 </section>
 
 <!-- MENU -->
-<section class="menu-section" id="menu">
-    <div class="container">
+<section id="menu" class="menu-section">
+    <h2>Explore Our Food Menu</h2>
+    <p>Choose your favourite food for your special occasion.</p>
 
-        <div class="heading">
-            <small>Our Specialties</small>
-            <h2>Explore Our Food Menu</h2>
-            <p>Traditional taste for every special occasion.</p>
+    <div class="menu-container">
+
+        <div class="menu-card">
+            <img src="{{ url_for('static', filename='images/biryani.jpg') }}"
+                 alt="Biryani">
+            <h3>Non-Veg Specials</h3>
+            <p>Chicken Biryani, Mutton Biryani and delicious curries.</p>
+            <label>
+                <input type="checkbox" name="menu_items" value="Non-Veg Specials">
+                Select Menu
+            </label>
         </div>
 
-        <div class="menu-grid">
-
-            <div class="menu-card">
-                <img src="https://images.unsplash.com/photo-1563379091339-03246963d51a?auto=format&fit=crop&w=800&q=85"
-                     alt="Biryani">
-
-                <div class="menu-info">
-                    <h3>Non-Veg Specials</h3>
-                    <p>Chicken Biryani, Mutton Biryani and delicious curries.</p>
-                </div>
-            </div>
-
-            <div class="menu-card">
-                <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=85"
-                     alt="Vegetarian food">
-
-                <div class="menu-info">
-                    <h3>Veg Specials</h3>
-                    <p>Traditional rice, sambar, rasam, curd and sweets.</p>
-                </div>
-            </div>
-
-            <div class="menu-card">
-                <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=85"
-                     alt="Indian tiffin">
-
-                <div class="menu-info">
-                    <h3>Tiffin Specials</h3>
-                    <p>Idli, Vada, Pongal, Chapathi and Poori.</p>
-                </div>
-            </div>
-
+        <div class="menu-card">
+            <img src="{{ url_for('static', filename='images/veg.jpg') }}"
+                 alt="Vegetarian Meals">
+            <h3>Veg Specials</h3>
+            <p>Traditional rice, sambar, rasam, curd and sweets.</p>
+            <label>
+                <input type="checkbox" name="menu_items" value="Veg Specials">
+                Select Menu
+            </label>
         </div>
+
+        <div class="menu-card">
+            <img src="{{ url_for('static', filename='images/tiffin.jpg') }}"
+                 alt="Tiffin Specials">
+            <h3>Tiffin Specials</h3>
+            <p>Idli, Vada, Pongal, Chapati and Poori.</p>
+            <label>
+                <input type="checkbox" name="menu_items" value="Tiffin Specials">
+                Select Menu
+            </label>
+        </div>
+
+        <div class="menu-card">
+            <img src="{{ url_for('static', filename='images/sweets.jpg') }}"
+                 alt="Traditional Sweets">
+            <h3>Sweets & Desserts</h3>
+            <p>Traditional sweets and delicious desserts.</p>
+            <label>
+                <input type="checkbox" name="menu_items" value="Sweets and Desserts">
+                Select Menu
+            </label>
+        </div>
+
+        <div class="menu-card">
+            <img src="{{ url_for('static', filename='images/starters.jpg') }}"
+                 alt="Starters">
+            <h3>Starters</h3>
+            <p>Delicious vegetarian and non-vegetarian starters.</p>
+            <label>
+                <input type="checkbox" name="menu_items" value="Starters">
+                Select Menu
+            </label>
+        </div>
+
+        <div class="menu-card">
+            <img src="{{ url_for('static', filename='images/drinks.jpg') }}"
+                 alt="Drinks">
+            <h3>Drinks</h3>
+            <p>Refreshing juices and traditional beverages.</p>
+            <label>
+                <input type="checkbox" name="menu_items" value="Drinks">
+                Select Menu
+            </label>
+        </div>
+
     </div>
 </section>
 
 <!-- SERVICES -->
-<section id="services">
-    <div class="container">
+<section id="services" class="services-section">
+    <h2>Our Catering Services</h2>
 
-        <div class="heading">
-            <small>What We Offer</small>
-            <h2>Our Catering Services</h2>
+    <div class="services-container">
+        <div class="service-card">
+            <h3>Wedding Catering</h3>
+            <p>Special food arrangements for weddings.</p>
         </div>
 
-        <div class="service-grid">
+        <div class="service-card">
+            <h3>Birthday Parties</h3>
+            <p>Make birthdays memorable with delicious food.</p>
+        </div>
 
-            <div class="service-card">
-                <div class="service-icon">💍</div>
-                <h3>Wedding Catering</h3>
-                <p>Food arrangements for your special wedding celebrations.</p>
-            </div>
+        <div class="service-card">
+            <h3>Family Functions</h3>
+            <p>Traditional catering for family celebrations.</p>
+        </div>
 
-            <div class="service-card">
-                <div class="service-icon">🎂</div>
-                <h3>Birthday Functions</h3>
-                <p>Celebrate memorable days with delicious food.</p>
-            </div>
-
-            <div class="service-card">
-                <div class="service-icon">🎉</div>
-                <h3>Family Functions</h3>
-                <p>Catering for family gatherings and celebrations.</p>
-            </div>
-
+        <div class="service-card">
+            <h3>Corporate Events</h3>
+            <p>Quality catering for business events.</p>
         </div>
     </div>
 </section>
 
 <!-- ABOUT -->
-<section class="about-section" id="about">
-    <div class="container about-grid">
-
-        <img src="https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1000&q=85"
-             alt="Catering arrangement">
-
-        <div class="about-content">
-            <small>ABOUT VILLAGE FEAST</small>
-
-            <h2>Good Food Brings Everyone Together</h2>
-
-            <p>
-                Village Feast offers catering options for weddings,
-                family functions and special occasions.
-            </p>
-
-            <p>
-                From traditional vegetarian meals to special
-                biryanis and tiffin, explore our food options.
-            </p>
-
-            <a href="#booking" class="btn">Book Your Event</a>
-        </div>
-
-    </div>
+<section id="about" class="about-section">
+    <h2>About Village Feast</h2>
+    <p>
+        Village Feast brings traditional taste and quality food
+        to your special occasions. We make every celebration memorable
+        with delicious food and catering services.
+    </p>
 </section>
 
-<!-- BOOKING FORM -->
-<section class="booking-section" id="booking">
-    <div class="container">
+<!-- BOOKING -->
+<section id="booking" class="booking-section">
+    <h2>Book Our Catering Services</h2>
+    <p>Fill in your event details. We will contact you soon.</p>
 
-        <div class="booking-box">
+    <form id="bookingForm">
 
-            <h2>Book Your Catering</h2>
+        <label for="customerName">Customer Name</label>
+        <input type="text" id="customerName"
+               placeholder="Enter your name" required>
 
-            <p class="booking-intro">
-                Share your event details and select your preferred food.
-            </p>
+        <label for="customerPhone">Mobile Number</label>
+        <input type="tel" id="customerPhone"
+               placeholder="Enter mobile number" required>
 
-            <form id="bookingForm">
+        <label for="eventType">Event Type</label>
+        <select id="eventType" required>
+            <option value="">Select Event</option>
+            <option value="Wedding">Wedding</option>
+            <option value="Birthday">Birthday</option>
+            <option value="Engagement">Engagement</option>
+            <option value="Family Function">Family Function</option>
+            <option value="Corporate Event">Corporate Event</option>
+            <option value="Other">Other</option>
+        </select>
 
-                <div class="form-grid">
+        <label for="eventDate">Event Date</label>
+        <input type="date" id="eventDate" required>
 
-                    <div class="form-group">
-                        <label for="customerName">Customer Name *</label>
-                        <input type="text" id="customerName"
-                               name="customerName" required>
-                    </div>
+        <label for="guests">Number of Guests</label>
+        <input type="number" id="guests"
+               min="1" placeholder="Enter guest count" required>
 
-                    <div class="form-group">
-                        <label for="customerPhone">Mobile Number *</label>
-                        <input type="tel" id="customerPhone"
-                               name="customerPhone" required>
-                    </div>
+        <label for="eventLocation">Event Location</label>
+        <input type="text" id="eventLocation"
+               placeholder="Enter event location" required>
 
-                    <div class="form-group">
-                        <label for="eventType">Event Type *</label>
-                        <select id="eventType" name="eventType" required>
-                            <option value="">Select Event</option>
-                            <option>Wedding</option>
-                            <option>Birthday</option>
-                            <option>Family Function</option>
-                            <option>Engagement</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
+        <label for="requirements">Additional Requirements</label>
+        <textarea id="requirements"
+                  placeholder="Enter your requirements"></textarea>
 
-                    <div class="form-group">
-                        <label for="eventDate">Event Date *</label>
-                        <input type="date" id="eventDate"
-                               name="eventDate" required>
-                    </div>
+        <button type="submit">Submit Booking</button>
 
-                    <div class="form-group">
-                        <label for="guests">Number of Guests *</label>
-                        <input type="number" id="guests"
-                               name="guests" min="1" required>
-                    </div>
+    </form>
 
-                    <div class="form-group">
-                        <label for="eventLocation">Event Location *</label>
-                        <input type="text" id="eventLocation"
-                               name="eventLocation" required>
-                    </div>
-
-                    <!-- FOOD MENU SELECTION -->
-                    <div class="food-selection">
-
-                        <h3>Choose Your Food Menu</h3>
-                        <p>Select your preferred food items.</p>
-
-                        <div class="food-category">
-                            <div class="category-heading">
-                                <h4>🍗 Non-Veg Menu</h4>
-                            </div>
-
-                            <div class="food-items">
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Chicken Biryani">
-                                    <span>Chicken Biryani</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Mutton Biryani">
-                                    <span>Mutton Biryani</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Chicken Curry">
-                                    <span>Chicken Curry</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Mutton Curry">
-                                    <span>Mutton Curry</span>
-                                </label>
-
-                            </div>
-                        </div>
-
-                        <div class="food-category">
-                            <div class="category-heading">
-                                <h4>🥗 Veg Menu</h4>
-                            </div>
-
-                            <div class="food-items">
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Vegetable Rice">
-                                    <span>Vegetable Rice</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Rice with Sambar">
-                                    <span>Rice with Sambar</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Rasam">
-                                    <span>Rasam</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Curd">
-                                    <span>Curd</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Brinji Rice">
-                                    <span>Brinji Rice</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Traditional Sweets">
-                                    <span>Traditional Sweets</span>
-                                </label>
-
-                            </div>
-                        </div>
-
-                        <div class="food-category">
-                            <div class="category-heading">
-                                <h4>🍽️ Tiffin Menu</h4>
-                            </div>
-
-                            <div class="food-items">
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Idli">
-                                    <span>Idli</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Vada">
-                                    <span>Vada</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Pongal">
-                                    <span>Pongal</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Chapathi">
-                                    <span>Chapathi</span>
-                                </label>
-
-                                <label class="food-option">
-                                    <input type="checkbox" name="menuChoice"
-                                           value="Poori">
-                                    <span>Poori</span>
-                                </label>
-
-                            </div>
-                        </div>
-
-                        <div class="selected-food">
-                            <strong>Selected Food Items</strong>
-                            <div id="selectedFoodText">
-                                No food items selected yet.
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="form-group full">
-                        <label for="requirements">
-                            Additional Requirements
-                        </label>
-
-                        <textarea id="requirements"
-                                  name="requirements" rows="4"
-                                  placeholder="Any additional information..."></textarea>
-                    </div>
-
-                </div>
-
-                <button type="submit" class="btn submit-btn">
-                    Submit Booking
-                </button>
-
-            </form>
-
-            <div id="bookingSuccess" hidden>
-                <h3>Booking Submitted Successfully!</h3>
-                <p>Thank you for choosing Village Feast.</p>
-            </div>
-
-        </div>
+    <div id="bookingSuccess" style="display:none;">
+        <h3>Booking Submitted Successfully!</h3>
+        <p>Thank you for choosing Village Feast.</p>
     </div>
 </section>
 
 <!-- FOOTER -->
-<footer>
-    <div class="container">
-
-        <div class="footer-grid">
-
-            <div>
-                <h3>Village Feast</h3>
-                <p>Delicious food and catering for your memorable occasions.</p>
-            </div>
-
-            <div>
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#menu">Menu</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#booking">Booking</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h3>Our Menu</h3>
-                <ul>
-                    <li>Non-Veg</li>
-                    <li>Veg</li>
-                    <li>Tiffin</li>
-                </ul>
-            </div>
-
-        </div>
-
-        <div class="copyright">
-            © 2026 Village Feast. All Rights Reserved.
-        </div>
-
-    </div>
+<footer class="footer">
+    <h3>Village Feast.</h3>
+    <p>Traditional Taste | Quality Food | Happy Celebrations</p>
+    <p>© 2026 Village Feast. All Rights Reserved.</p>
 </footer>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
