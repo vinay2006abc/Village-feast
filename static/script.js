@@ -1,214 +1,208 @@
-// VILLAGE FEAST - WHATSAPP + BOOKING NOTIFICATION
+document.addEventListener("DOMContentLoaded", () => {
 
-const bookingForm = document.getElementById("bookingForm");
-const bookingNotification = document.getElementById("bookingNotification");
-const notificationHeading = document.getElementById("notificationHeading");
-const notificationMessage = document.getElementById("notificationMessage");
+    // ELEMENTS
+    const form = document.getElementById("bookingForm");
+    const selectedFoodText = document.getElementById("selectedFoodText");
+    const formMessage = document.getElementById("formMessage");
+    const submitButton = document.getElementById("submitBooking");
+    const successBox = document.getElementById("bookingSuccess");
 
-// Village Feast WhatsApp contact number
-const phoneNumber = "918008127068";
+    // MOBILE NAVIGATION
+    const navToggle = document.getElementById("navToggle");
+    const navLinks = document.getElementById("navLinks");
 
-// Browser storage key
-const bookingStorageKey = "villageFeastBookingToken";
+    if (navToggle && navLinks) {
 
+        navToggle.addEventListener("click", () => {
+            navLinks.classList.toggle("open");
+        });
 
-// HIDE NOTIFICATION WHEN WEBSITE OPENS
-if (bookingNotification) {
-    bookingNotification.hidden = true;
-}
-
-
-// DISPLAY NOTIFICATION
-function showNotification(heading, message, scroll = false) {
-
-    if (
-        scroll &&
-        heading === "Booking Submitted Successfully!"
-    ) {
-
-        notificationHeading.innerHTML =
-            '<marquee direction="left" scrollamount="5">Booking Submitted Successfully!</marquee>';
-
-    } else {
-
-        notificationHeading.textContent = heading;
-
-    }
-
-    notificationMessage.textContent = message;
-
-    bookingNotification.hidden = false;
-
-    if (scroll) {
-        bookingNotification.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
+        navLinks.querySelectorAll("a").forEach(link => {
+            link.addEventListener("click", () => {
+                navLinks.classList.remove("open");
+            });
         });
     }
-}
+
+    // FOOD MENU SELECTION
+    const foodCheckboxes = Array.from(
+        document.querySelectorAll('input[name="menuChoice"]')
+    );
+
+    function getSelectedFood() {
+        return foodCheckboxes
+            .filter(item => item.checked)
+            .map(item => item.value);
+    }
+
+    function updateSelectedFood() {
+
+        const selectedItems = getSelectedFood();
+
+        if (selectedItems.length > 0) {
+
+            selectedFoodText.textContent = selectedItems.join(", ");
+
+        } else {
+
+            selectedFoodText.textContent =
+                "No food items selected yet.";
+        }
+    }
+
+    foodCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", updateSelectedFood);
+    });
+
+    updateSelectedFood();
 
 
-// CUSTOMER BOOKING SUBMISSION
-if (bookingForm) {
+    // BOOKING FORM SUBMISSION
+    if (!form) return;
 
-    bookingForm.addEventListener("submit", async function(event) {
+    form.addEventListener("submit", async (event) => {
 
         event.preventDefault();
 
-        // Get customer details
-        const name = document.getElementById("customerName").value.trim();
-        const phone = document.getElementById("customerPhone").value.trim();
-        const eventType = document.getElementById("eventType").value;
-        const date = document.getElementById("eventDate").value;
-        const guests = document.getElementById("guests").value;
-        const location = document.getElementById("eventLocation").value.trim();
-        const requirements = document.getElementById("requirements").value.trim();
+        formMessage.textContent = "";
+        formMessage.className = "form-message";
 
-        // Validate customer details
-        if (!name || !phone || !eventType || !date || !guests || !location) {
+        successBox.hidden = true;
 
-            alert("Please fill in all required booking details.");
-            return;
-        }
-
-        if (!/^[0-9]{10}$/.test(phone)) {
-
-            alert("Please enter a valid 10-digit mobile number.");
-            return;
-        }
-
-        // Prevent duplicate submissions
-        const submitButton = bookingForm.querySelector(".submit-btn");
-
-        if (submitButton.disabled) {
-            return;
-        }
-
-        submitButton.disabled = true;
-        submitButton.textContent = "Submitting Booking...";
-
-        // Open a new tab immediately to avoid popup blocking
-        const whatsappWindow = window.open("about:blank", "_blank");
-
-        // Prepare booking data
+        // GET CUSTOMER DETAILS
         const bookingData = {
-            name: name,
-            phone: phone,
-            eventType: eventType,
-            eventDate: date,
-            guests: guests,
-            address: location,
-            requirements: requirements
+
+            customerName:
+                document.getElementById("customerName").value.trim(),
+
+            customerPhone:
+                document.getElementById("customerPhone").value.trim(),
+
+            eventType:
+                document.getElementById("eventType").value,
+
+            eventDate:
+                document.getElementById("eventDate").value,
+
+            guests:
+                document.getElementById("guests").value,
+
+            eventLocation:
+                document.getElementById("eventLocation").value.trim(),
+
+            requirements:
+                document.getElementById("requirements").value.trim(),
+
+            menuItems: getSelectedFood()
         };
+
+
+        // VALIDATE FOOD SELECTION
+        if (bookingData.menuItems.length === 0) {
+
+            formMessage.textContent =
+                "Please select at least one food item.";
+
+            formMessage.classList.add("error");
+
+            return;
+        }
+
+
+        // PREVENT DOUBLE SUBMISSION
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+
+        // OPEN WHATSAPP TAB AFTER USER SUBMISSION
+        const whatsappTab = window.open("about:blank", "_blank");
 
         try {
 
-            // Save booking in Neon PostgreSQL through Flask
+            // SEND BOOKING TO FLASK BACKEND
             const response = await fetch("/api/bookings", {
+
                 method: "POST",
+
                 headers: {
                     "Content-Type": "application/json"
                 },
+
                 body: JSON.stringify(bookingData)
+
             });
 
             const result = await response.json();
 
-            if (!response.ok || !result.success) {
+            if (!response.ok || !result.ok) {
 
-                if (whatsappWindow) {
-                    whatsappWindow.close();
-                }
-
-                alert(
-                    result.message ||
-                    "Booking could not be saved. Please try again."
+                throw new Error(
+                    result.error || "Booking submission failed."
                 );
-
-                return;
             }
 
-            // Save customer booking reference
-            if (result.booking_token) {
 
-                try {
+            // DATABASE SUCCESS
+            formMessage.textContent =
+                `Booking #${result.booking_id} saved successfully.`;
 
-                    localStorage.setItem(
-                        bookingStorageKey,
-                        result.booking_token
-                    );
+            formMessage.classList.add("success");
 
-                } catch (storageError) {
 
-                    console.error(
-                        "Unable to save booking reference:",
-                        storageError
-                    );
+            // SUCCESS NOTIFICATION
+            successBox.hidden = false;
 
+            successBox.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+
+            // OPEN WHATSAPP
+            if (result.whatsapp_url) {
+
+                if (whatsappTab) {
+
+                    whatsappTab.location.href = result.whatsapp_url;
+
+                } else {
+
+                    window.location.href = result.whatsapp_url;
                 }
 
             } else {
 
-                console.error("Booking reference was not returned.");
+                if (whatsappTab) {
+                    whatsappTab.close();
+                }
 
+                formMessage.textContent +=
+                    " WhatsApp number is not configured.";
             }
 
-            // Show successful booking notification
-            showNotification(
-                "Booking Submitted Successfully!",
-                "Please wait. Our team will contact you soon to confirm your booking.",
-                true
-            );
 
-            // Original WhatsApp message format
-            const message =
-`Hello Village Feast!
+            // CLEAR FORM AFTER SUCCESS
+            form.reset();
 
-I would like to book catering services.
+            updateSelectedFood();
 
-Customer Name: ${name}
-Mobile Number: ${phone}
-Event Type: ${eventType}
-Event Date: ${date}
-Number of Guests: ${guests}
-Event Location: ${location}
-Additional Requirements: ${requirements || "None"}
-
-Please contact me with the details. Thank you!`;
-
-            // Create WhatsApp URL
-            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-            // Open WhatsApp in the new tab
-            if (whatsappWindow) {
-
-                whatsappWindow.location.href = url;
-
-            } else {
-
-                window.location.href = url;
-
-            }
 
         } catch (error) {
 
-            console.error("Booking error:", error);
-
-            if (whatsappWindow) {
-                whatsappWindow.close();
+            if (whatsappTab) {
+                whatsappTab.close();
             }
 
-            alert(
-                "Unable to connect to the booking server. Please try again."
-            );
+            formMessage.textContent = error.message;
+
+            formMessage.classList.add("error");
 
         } finally {
 
             submitButton.disabled = false;
-            submitButton.textContent = "Submit Booking on WhatsApp";
 
+            submitButton.textContent = "Submit Booking";
         }
 
     });
 
-}
+});
