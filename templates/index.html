@@ -3,283 +3,774 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Village Feast | Catering Services</title>
+    <meta name="description" content="Village Feast - Delicious food and catering services for weddings, family functions and special occasions.">
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --orange: #ed751e;
+            --dark-orange: #c95710;
+            --cream: #fff8f1;
+            --dark: #29231f;
+            --text: #685d54;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--white);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .container {
+            width: min(1150px, 90%);
+            margin: auto;
+        }
+
+        /* NAVIGATION */
+
+        header {
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 3px 18px rgba(0,0,0,.06);
+        }
+
+        nav {
+            min-height: 78px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--orange);
+        }
+
+        .logo span {
+            color: var(--dark);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 27px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--orange);
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--orange);
+            color: white;
+            padding: 13px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: .3s;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: var(--dark-orange);
+            transform: translateY(-2px);
+        }
+
+        /* HERO */
+
+        .hero {
+            background: linear-gradient(90deg, rgba(31,20,12,.82), rgba(31,20,12,.28)),
+            url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1800&q=85')
+            center/cover;
+            min-height: 570px;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 650px;
+            padding: 80px 0;
+        }
+
+        .tag {
+            color: #ffd3a8;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+
+        .hero h1 {
+            font-size: clamp(38px, 6vw, 65px);
+            line-height: 1.18;
+            margin: 18px 0;
+        }
+
+        .hero h1 span {
+            color: #ffad64;
+        }
+
+        .hero p {
+            max-width: 520px;
+            color: #f6eee8;
+            margin-bottom: 28px;
+        }
+
+        /* GENERAL SECTIONS */
+
+        section {
+            padding: 85px 0;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .section-heading small {
+            color: var(--orange);
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .section-heading h2 {
+            font-size: clamp(28px, 4vw, 40px);
+            margin: 8px 0;
+        }
+
+        .section-heading p {
+            color: var(--text);
+        }
+
+        /* MENU */
+
+        .menu-section {
+            background: var(--cream);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(70,40,15,.07);
+            transition: .3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 15px 35px rgba(70,40,15,.13);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .menu-info {
+            padding: 24px;
+        }
+
+        .menu-info h3 {
+            font-size: 22px;
+            color: var(--orange);
+            margin-bottom: 12px;
+        }
+
+        .menu-info ul {
+            list-style: none;
+        }
+
+        .menu-info li {
+            padding: 7px 0;
+            color: var(--text);
+            border-bottom: 1px solid #f2eee9;
+        }
+
+        .menu-info li::before {
+            content: "✓";
+            color: var(--orange);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* SERVICES */
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .service-card {
+            background: var(--cream);
+            padding: 32px 24px;
+            border-radius: 14px;
+            text-align: center;
+            border-bottom: 4px solid var(--orange);
+        }
+
+        .service-icon {
+            font-size: 38px;
+            margin-bottom: 15px;
+        }
+
+        .service-card h3 {
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        /* ABOUT */
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .about-grid img {
+            width: 100%;
+            height: 390px;
+            object-fit: cover;
+            border-radius: 18px;
+        }
+
+        .about-content small {
+            color: var(--orange);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .about-content h2 {
+            font-size: 36px;
+            margin: 12px 0;
+        }
+
+        .about-content p {
+            color: var(--text);
+            margin-bottom: 18px;
+        }
+
+        /* WHY CHOOSE US */
+
+        .why-section {
+            background: var(--cream);
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .why-card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .why-card h3 {
+            margin: 10px 0;
+        }
+
+        .why-card p {
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        /* GALLERY */
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .gallery-grid img {
+            height: 240px;
+            width: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            transition: .3s;
+        }
+
+        .gallery-grid img:hover {
+            transform: scale(1.025);
+        }
+
+        /* BOOKING */
+
+        .booking-section {
+            background: var(--cream);
+        }
+
+        .booking-box {
+            background: white;
+            max-width: 850px;
+            margin: auto;
+            padding: 40px;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(70,40,15,.07);
+        }
+
+        .booking-box h2 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .booking-box > p {
+            text-align: center;
+            color: var(--text);
+            margin-bottom: 28px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #e8ddd4;
+            border-radius: 8px;
+            font: inherit;
+            outline: none;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--orange);
+        }
+
+        .booking-box button {
+            width: 100%;
+            margin-top: 22px;
+            font-size: 16px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #29231f;
+            color: white;
+            padding: 55px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 35px;
+            margin-bottom: 35px;
+        }
+
+        footer h3 {
+            color: #ffad64;
+            margin-bottom: 15px;
+        }
+
+        footer p, footer a {
+            color: #d5c9bf;
+            font-size: 14px;
+        }
+
+        footer li {
+            list-style: none;
+            margin: 9px 0;
+        }
+
+        .copyright {
+            border-top: 1px solid #51463e;
+            padding-top: 20px;
+            text-align: center;
+            color: #cbbdb2;
+            font-size: 13px;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 850px) {
+            .nav-links {
+                gap: 12px;
+            }
+
+            .nav-links a {
+                font-size: 12px;
+            }
+
+            .menu-grid,
+            .services-grid,
+            .why-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .about-grid {
+                gap: 25px;
+            }
+        }
+
+        @media(max-width: 600px) {
+            nav {
+                flex-wrap: wrap;
+                padding: 15px 0;
+            }
+
+            .logo {
+                font-size: 21px;
+            }
+
+            .nav-links {
+                order: 3;
+                width: 100%;
+                justify-content: space-between;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .nav-links a {
+                font-size: 11px;
+            }
+
+            nav > .btn {
+                padding: 9px 13px;
+                font-size: 12px;
+            }
+
+            .hero {
+                min-height: 480px;
+            }
+
+            section {
+                padding: 60px 0;
+            }
+
+            .menu-grid,
+            .services-grid,
+            .why-grid,
+            .about-grid,
+            .gallery-grid,
+            .footer-grid,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-grid img {
+                height: 280px;
+            }
+
+            .gallery-grid img {
+                height: 230px;
+            }
+
+            .booking-box {
+                padding: 24px 18px;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
-<header class="header">
-    <div class="logo">
-        <span class="logo-icon">🍃</span>
-        <div>
-            <h2>Village Feast</h2>
-            <small>Catering Services</small>
-        </div>
-    </div>
+<header>
+    <nav class="container">
+        <a href="#" class="logo">Village <span>Feast.</span></a>
 
-    <nav>
-        <a href="#home">⌂ Home</a>
-        <a href="#services">♨ Services</a>
-        <a href="#booking">▦ Book Now</a>
-        <a class="whatsapp-nav"
-           href="https://wa.me/918008127068"
-           target="_blank">☏ WhatsApp</a>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#menu">Our Menu</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#booking">Booking</a></li>
+        </ul>
+
+        <a href="#booking" class="btn">Book Now</a>
     </nav>
 </header>
 
-
 <!-- HERO SECTION -->
+
 <section class="hero" id="home">
+    <div class="container">
+        <div class="hero-content">
+            <span class="tag">Welcome to Village Feast</span>
 
-    <div class="hero-content">
+            <h1>Delicious Food.<br>
+                <span>Beautiful Moments.</span>
+            </h1>
 
-        <p class="tagline">
-            TRADITIONAL TASTE • SPECIAL MOMENTS
-        </p>
+            <p>
+                Making your special occasions memorable with delicious
+                food and quality catering services.
+            </p>
 
-        <h1>
-            Good Food.<br>
-            <span>Great Memories.</span>
-        </h1>
-
-        <p class="hero-description">
-            Delicious food and catering services
-            for every special occasion.
-        </p>
-
-        <a href="#booking" class="main-btn">
-            ▦ Book Your Catering →
-        </a>
-
+            <a href="#menu" class="btn">Explore Our Menu</a>
+            <a href="#booking" class="btn" style="background:white;color:#c95710;margin-left:8px;">Book Catering</a>
+        </div>
     </div>
-
-    <div class="hero-image"></div>
-
 </section>
 
+<!-- MENU SECTION -->
 
-<!-- MAIN CONTENT -->
-<main class="main-container">
-
-    <!-- SERVICES -->
-    <section class="services" id="services">
+<section class="menu-section" id="menu">
+    <div class="container">
 
         <div class="section-heading">
-            <span>♨</span>
+            <small>Our Specialties</small>
+            <h2>Explore Our Food Menu</h2>
+            <p>Traditional taste for every special occasion.</p>
+        </div>
+
+        <div class="menu-grid">
+
+            <div class="menu-card">
+                <img src="https://images.unsplash.com/photo-1563379091339-03246963d51a?auto=format&fit=crop&w=800&q=85" alt="Chicken and mutton biryani">
+                <div class="menu-info">
+                    <h3>Non-Veg Specials</h3>
+                    <ul>
+                        <li>Chicken Biryani</li>
+                        <li>Mutton Biryani</li>
+                        <li>Chicken Curry</li>
+                        <li>Mutton Curry</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="menu-card">
+                <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=85" alt="South Indian vegetarian food">
+                <div class="menu-info">
+                    <h3>Veg Specials</h3>
+                    <ul>
+                        <li>Vegetable Rice</li>
+                        <li>Rice with Sambar</li>
+                        <li>Rasam</li>
+                        <li>Curd</li>
+                        <li>Brinji Rice</li>
+                        <li>Traditional Sweets</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="menu-card">
+                <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=85" alt="Traditional Indian tiffin">
+                <div class="menu-info">
+                    <h3>Tiffin Specials</h3>
+                    <ul>
+                        <li>Idli</li>
+                        <li>Vada</li>
+                        <li>Pongal</li>
+                        <li>Chapathi</li>
+                        <li>Poori</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+
+<section id="services">
+    <div class="container">
+        <div class="section-heading">
+            <small>What We Offer</small>
             <h2>Our Catering Services</h2>
-            <p>Making every celebration delicious</p>
+            <p>Food and hospitality for your important celebrations.</p>
         </div>
 
-        <div class="service-container">
-
-            <div class="service-card wedding">
-                <div class="service-image"></div>
-
-                <div class="service-info">
-                    <h3>💍 Wedding Catering</h3>
-                    <p>
-                        Make your special day memorable
-                        with delicious food.
-                    </p>
-                    <a href="#booking" class="learn-btn">
-                        Learn More →
-                    </a>
-                </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">💍</div>
+                <h3>Wedding Catering</h3>
+                <p>Make your wedding celebration special with delicious food.</p>
             </div>
 
-
-            <div class="service-card birthday">
-                <div class="service-image"></div>
-
-                <div class="service-info">
-                    <h3>🎂 Birthday Parties</h3>
-                    <p>
-                        Celebrate birthdays with tasty
-                        food and great service.
-                    </p>
-                    <a href="#booking" class="learn-btn">
-                        Learn More →
-                    </a>
-                </div>
+            <div class="service-card">
+                <div class="service-icon">🎂</div>
+                <h3>Birthday Functions</h3>
+                <p>Celebrate birthdays with tasty food and happy moments.</p>
             </div>
 
-
-            <div class="service-card family">
-                <div class="service-image"></div>
-
-                <div class="service-info">
-                    <h3>👨‍👩‍👧 Family Functions</h3>
-                    <p>
-                        Food arrangements for all
-                        your family celebrations.
-                    </p>
-                    <a href="#booking" class="learn-btn">
-                        Learn More →
-                    </a>
-                </div>
+            <div class="service-card">
+                <div class="service-icon">🎉</div>
+                <h3>Family Functions</h3>
+                <p>Catering arrangements for family gatherings and celebrations.</p>
             </div>
+        </div>
+    </div>
+</section>
 
+<!-- ABOUT -->
+
+<section id="about" style="background:#fff8f1;">
+    <div class="container about-grid">
+        <img src="https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1000&q=85" alt="Catering food arrangement">
+
+        <div class="about-content">
+            <small>ABOUT VILLAGE FEAST</small>
+            <h2>Good Food Brings Everyone Together</h2>
+            <p>
+                Village Feast is here to make your special occasions
+                memorable with delicious food and catering services.
+            </p>
+            <p>
+                From traditional meals to special biryanis and tiffin,
+                we offer food options for different occasions.
+            </p>
+            <a href="#booking" class="btn">Book Your Event</a>
+        </div>
+    </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+
+<section class="why-section">
+    <div class="container">
+        <div class="section-heading">
+            <small>Our Promise</small>
+            <h2>Why Choose Village Feast?</h2>
         </div>
 
-    </section>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="service-icon">🍲</div>
+                <h3>Delicious Food</h3>
+                <p>A variety of traditional and special food options.</p>
+            </div>
 
+            <div class="why-card">
+                <div class="service-icon">❤️</div>
+                <h3>Customer Care</h3>
+                <p>We value every customer and their special occasion.</p>
+            </div>
 
-    <!-- BOOKING FORM -->
-    <section class="booking" id="booking">
+            <div class="why-card">
+                <div class="service-icon">🎊</div>
+                <h3>Special Occasions</h3>
+                <p>Catering options for different celebrations and events.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- GALLERY -->
+
+<section id="gallery">
+    <div class="container">
+        <div class="section-heading">
+            <small>Food Gallery</small>
+            <h2>A Taste of Village Feast</h2>
+            <p>Explore our food and catering inspiration.</p>
+        </div>
+
+        <div class="gallery-grid">
+            <img src="https://images.unsplash.com/photo-1563379091339-03246963d51a?auto=format&fit=crop&w=800&q=85" alt="Biryani">
+            <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=85" alt="Vegetarian meal">
+            <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=85" alt="Food catering">
+        </div>
+    </div>
+</section>
+
+<!-- BOOKING FORM -->
+
+<section class="booking-section" id="booking">
+    <div class="container">
         <div class="booking-box">
 
-            <div class="booking-heading">
-                <span>🍽️</span>
-
-                <div>
-                    <h2>Book Your Catering</h2>
-                    <p>
-                        Fill in your details. We'll connect
-                        you through WhatsApp.
-                    </p>
-                </div>
-            </div>
-
+            <h2>Book Your Catering</h2>
+            <p>Tell us about your event. We'll contact you soon.</p>
 
             <form id="bookingForm">
 
                 <div class="form-grid">
 
                     <div class="form-group">
-                        <label>Customer Name</label>
-                        <input type="text"
-                               id="customerName"
-                               placeholder="Enter your name"
-                               required>
+                        <label for="customerName">Customer Name *</label>
+                        <input type="text" id="customerName" name="customerName" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Event Date</label>
-                        <input type="date"
-                               id="eventDate"
-                               required>
+                        <label for="customerPhone">Mobile Number *</label>
+                        <input type="tel" id="customerPhone" name="customerPhone" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Mobile Number</label>
-                        <input type="tel"
-                               id="customerPhone"
-                               placeholder="Enter your mobile number"
-                               pattern="[0-9]{10}"
-                               maxlength="10"
-                               required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Number of Guests</label>
-                        <input type="number"
-                               id="guests"
-                               min="1"
-                               placeholder="Enter guest count"
-                               required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Event Type</label>
-                        <select id="eventType" required>
-                            <option value="">Select event</option>
+                        <label for="eventType">Event Type *</label>
+                        <select id="eventType" name="eventType" required>
+                            <option value="">Select Event</option>
                             <option>Wedding</option>
-                            <option>Birthday Party</option>
-                            <option>Family Function</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Event Location</label>
-                        <input type="text"
-                               id="eventLocation"
-                               placeholder="Enter event location"
-                               required>
-                    </div>
-
-                </div>
-
-
-                <div class="form-group full-width">
-                    <label>Additional Requirements</label>
-                    <textarea id="requirements"
-                              placeholder="Tell us your food requirements"></textarea>
-                </div>
-
-
-                <button type="submit" class="submit-btn">
-                    ☏ Submit Booking on WhatsApp
-                </button>
-
-            </form>
-
-            <p class="note">
-                🔒 Your booking request will open in WhatsApp
-                for confirmation.
-            </p>
-
-        </div>
-
-    </section>
-
-</main>
-
-
-<!-- BOOKING NOTIFICATION -->
-<section id="bookingNotification"
-         class="booking-notification"
-         aria-live="polite"
-         hidden>
-
-    <div class="notification-content">
-
-        <h3 id="notificationHeading">
-            Booking Submitted Successfully!
-        </h3>
-
-        <p>Thank you for choosing Village Feast ❤️</p>
-
-        <p id="notificationMessage">
-            Please wait. Our team will contact you soon
-            to confirm your booking.
-        </p>
-
-        <p class="notification-footer">
-            Your happiness is our priority!
-        </p>
-
-    </div>
-
-</section>
-
-
-<!-- FOOTER -->
-<footer class="footer">
-
-    <div class="footer-logo">
-        <h2>🍃 Village Feast</h2>
-        <small>Catering Services</small>
-    </div>
-
-    <div class="footer-message">
-        Bringing people together with delicious food.
-    </div>
-
-    <div class="footer-copy">
-        © 2026 Village Feast. All rights reserved.
-    </div>
-
-</footer>
-
-
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-
-</body>
-</html>
+                            <option>Birthday</option>
+                            <option>Family Function</opti
