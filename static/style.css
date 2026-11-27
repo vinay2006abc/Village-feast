@@ -854,3 +854,32 @@ textarea {
   }
 
 }
+
+.booking-notice {
+    width: 100%;
+    overflow: hidden;
+    background: #fff0f0;
+    border-top: 1px solid #ffcccc;
+    border-bottom: 1px solid #ffcccc;
+    padding: 12px 0;
+    white-space: nowrap;
+}
+
+.booking-notice p {
+    display: inline-block;
+    color: #c62828;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    padding-left: 100%;
+    animation: scrollNotice 22s linear infinite;
+}
+
+@keyframes scrollNotice {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
